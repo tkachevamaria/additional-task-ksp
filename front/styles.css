@@ -7,7 +7,7 @@
 
 body {
     min-height: 100vh;
-    background-image: url('Зайчики.jpg'); /* замени на своё фото */
+    background-image: url('Зайчики.jpg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -18,7 +18,6 @@ body {
     position: relative;
 }
 
-/* Усиленная тёмная подложка для контраста */
 body::before {
     content: '';
     position: fixed;
@@ -29,28 +28,25 @@ body::before {
     background: rgba(0, 0, 0, 0.5);
     z-index: 0;
 }
-    
-/* ГЛАВНАЯ КАРТОЧКА - ТЁМНАЯ ПОЛУПРОЗРАЧНАЯ */
+
 .card {
     position: relative;
     z-index: 2;
     max-width: 650px;
     width: 100%;
-    background: rgba(17, 34, 80, 0.85); /* #112250 с прозрачностью */
+    background: rgba(17, 34, 80, 0.75);
     backdrop-filter: blur(12px);
     border-radius: 32px;
     padding: 40px 32px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(224, 197, 143, 0.3); /* #E0C58F полупрозрачный */
+    border: 1px solid rgba(224, 197, 143, 0.3);
     transition: all 0.3s ease;
 }
 
-/* КАРТОЧКА ДЛЯ РЕЗУЛЬТАТОВ */
 .result-card {
     max-width: 700px;
 }
 
-/* КНОПКИ */
 .btn-primary {
     background-color: #E0C58F;
     color: #112250;
@@ -70,7 +66,7 @@ body::before {
 }
 
 .btn-secondary {
-    background-color: rgba(60, 80, 125, 0.8); /* #3C507D полупрозрачный */
+    background-color: rgba(60, 80, 125, 0.8);
     color: #F5F0E9;
     border: 1px solid rgba(224, 197, 143, 0.5);
     padding: 12px 24px;
@@ -87,7 +83,6 @@ body::before {
     border-color: #E0C58F;
 }
 
-/* ТЕКСТ ВОПРОСА */
 .question-text {
     font-size: 26px;
     font-weight: 700;
@@ -96,12 +91,18 @@ body::before {
     line-height: 1.3;
 }
 
-/* ВАРИАНТЫ ОТВЕТОВ - ТЁМНЫЕ ПОЛУПРОЗРАЧНЫЕ */
+.options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 30px;
+}
+
 .option-item {
-    background: rgba(60, 80, 125, 0.6); /* #3C507D с прозрачностью */
+    background: rgba(60, 80, 125, 0.6);
     border: 2px solid rgba(224, 197, 143, 0.4);
     border-radius: 60px;
-    padding: 12px 20px;
+    padding: 14px 22px;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -136,14 +137,15 @@ body::before {
     flex: 1;
 }
 
-/* Вперёд-Назад */
 .nav-buttons {
     display: flex;
     justify-content: space-between;
     gap: 16px;
+    margin-top: 24px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(224, 197, 143, 0.2);
 }
 
-/* МОДАЛЬНОЕ ОКНО РЕГИСТРАЦИИ - ТЁМНОЕ */
 .modal {
     position: fixed;
     top: 0;
@@ -159,7 +161,7 @@ body::before {
 }
 
 .modal-content {
-    background: rgba(17, 34, 80, 0.95); /* #112250 почти непрозрачный */
+    background: rgba(17, 34, 80, 0.95);
     max-width: 450px;
     width: 90%;
     border-radius: 28px;
@@ -178,6 +180,7 @@ body::before {
     color: #D9CBC2;
 }
 
+/* СТИЛИ ДЛЯ ВСЕХ ПОЛЕЙ ВВОДА */
 .modal-content input {
     width: 100%;
     padding: 12px;
@@ -189,12 +192,106 @@ body::before {
     transition: 0.2s;
     background: rgba(245, 240, 233, 0.9);
     color: #112250;
+    font-weight: 500;
 }
 
+/* Выделение текста в полях ввода */
+.modal-content input::selection {
+    background: #3C507D;
+    color: #F5F0E9;
+}
+
+.modal-content input::-moz-selection {
+    background: #3C507D;
+    color: #F5F0E9;
+}
+
+/* Фокус на поле ввода */
 .modal-content input:focus {
     outline: none;
     border-color: #E0C58F;
     background: #F5F0E9;
+    box-shadow: 0 0 0 3px rgba(60, 80, 125, 0.3);
+}
+
+/* ===== СТИЛИ ДЛЯ ПОЛЯ ДАТЫ ===== */
+input[type="date"] {
+    position: relative;
+    cursor: pointer;
+}
+
+/* Стилизация иконки календаря (кнопка выбора даты) */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    background-color: #3C507D;
+    border-radius: 10px;
+    padding: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+    width: 22px;
+    height: 22px;
+    margin-right: 8px;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    background-color: #E0C58F;
+    transform: scale(1.1);
+}
+
+/* Стилизация текста внутри поля даты */
+input[type="date"]::-webkit-datetime-edit {
+    color: #112250;
+    padding: 0 8px;
+}
+
+input[type="date"]::-webkit-datetime-edit-text {
+    color: #3C507D;
+    padding: 0 4px;
+    font-weight: 600;
+}
+
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-year-field {
+    color: #112250;
+    border-radius: 6px;
+    padding: 2px 4px;
+    transition: 0.2s;
+}
+
+input[type="date"]::-webkit-datetime-edit-month-field:hover,
+input[type="date"]::-webkit-datetime-edit-day-field:hover,
+input[type="date"]::-webkit-datetime-edit-year-field:hover {
+    background: rgba(60, 80, 125, 0.2);
+    color: #3C507D;
+}
+
+/* Стилизация кнопок вверх/вниз (стрелки) */
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-outer-spin-button {
+    background-color: #D9CBC2;
+    border-radius: 4px;
+    padding: 2px;
+    opacity: 0.7;
+}
+
+input[type="date"]::-webkit-inner-spin-button:hover,
+input[type="date"]::-webkit-outer-spin-button:hover {
+    background-color: #E0C58F;
+    opacity: 1;
+}
+
+/* ===== ДОПОЛНИТЕЛЬНО: ГЛОБАЛЬНЫЕ СТИЛИ ДЛЯ КАЛЕНДАРЯ (работает не во всех браузерах) ===== */
+/* Для Chrome/Edge - можно задать цветовую схему самого календаря */
+@media (prefers-color-scheme: dark) {
+    input[type="date"] {
+        color-scheme: dark;
+    }
+}
+
+/* Просто добавляем красивый фон при наведении на всё поле даты */
+input[type="date"]:hover {
+    background: #F5F0E9;
+    border-color: #E0C58F;
 }
 
 .modal-buttons {
@@ -210,7 +307,6 @@ body::before {
     margin-top: 5px;
 }
 
-/* СТРАНИЦА РЕЗУЛЬТАТОВ - ТЁМНАЯ */
 .result-box {
     text-align: center;
 }
@@ -279,7 +375,6 @@ body::before {
     margin-bottom: 15px;
 }
 
-/* ОБЩИЕ КЛАССЫ */
 .hidden {
     display: none;
 }
