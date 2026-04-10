@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "modernc.org/sqlite"
 
-	"additional-task-ksp/internal/tests"
+	"additional-task-ksp/internal/server"
 )
 
 func main() {
@@ -19,8 +19,8 @@ func main() {
 	defer db.Close()
 
 	// сервис и хэндлер
-	service := tests.NewService(db)
-	handler := tests.NewHandler(service)
+	service := server.NewService(db)
+	handler := server.NewHandler(service)
 
 	// роутер
 	router := gin.Default()
