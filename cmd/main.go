@@ -26,7 +26,7 @@ func main() {
 	router := gin.Default()
 	router.Use(cors.Default())
 
-	// ===== routes =====
+	//
 	router.GET("/tests", handler.GetAllTests)
 	router.GET("/tests/:id", handler.GetTestByID)
 	router.POST("/tests/:id/submit", handler.SubmitTest)
