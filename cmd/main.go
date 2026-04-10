@@ -30,7 +30,9 @@ func main() {
 	router.GET("/tests", handler.GetAllTests)
 	router.GET("/tests/:id", handler.GetTestByID)
 	router.POST("/tests/:id/submit", handler.SubmitTest)
+	router.POST("/register", handler.Register)
 
 	// запуск
 	router.Run(":8080")
+
 }

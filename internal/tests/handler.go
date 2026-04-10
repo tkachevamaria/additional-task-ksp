@@ -72,3 +72,30 @@ func (h *Handler) SubmitTest(c *gin.Context) {
 
 	c.JSON(http.StatusOK, result)
 }
+
+func (h *Handler) Register(c *gin.Context) {
+	var req struct {
+		Name     string `json:"name"`
+		Birth    string `json:"birth"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	if err := c.BindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"error": "invalid request"})
+		return
+	}
+
+	if req.Name == "" {
+		c.JSON(400, gin.H{"error": "name is required"})
+		return
+	}
+
+	user, err := h.service.CreateUser(req.Name, req.Birth, req.Email, req.Password)
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, user)
+}
