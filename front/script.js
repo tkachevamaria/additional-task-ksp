@@ -1,25 +1,10 @@
-// ========== ДАННЫЕ ТЕСТА (3 вопроса, по 3 варианта ответа) ==========
-const QUESTIONS = [
-    {
-        text: "Как вы предпочитаете проводить свободное время?",
-        options: ["Читать книгу или смотреть фильм", "Встречаться с друзьями", "Заниматься спортом или хобби"]
-    },
-    {
-        text: "Какой стиль работы вам ближе?",
-        options: ["Планомерно и по правилам", "Креативно и свободно", "В команде, с поддержкой"]
-    },
-    {
-        text: "Что для вас важнее в жизни?",
-        options: ["Стабильность и покой", "Новые впечатления", "Гармония с собой и миром"]
-    }
-];
-
 // ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
+let testData = null;           // Данные теста с бэкенда
 let currentQuestionIndex = 0;
-let userAnswers = new Array(QUESTIONS.length).fill(null);
-let userData = null; // { name, birth, email }
+let userAnswers = {};          // question_id -> answer_index (для отправки на бэк)
+let userData = null;           // { id, name, password, birth, email }
 
-// DOM элементы
+// ========== DOM ЭЛЕМЕНТЫ ==========
 const welcomeScreen = document.getElementById('welcomeScreen');
 const testScreen = document.getElementById('testScreen');
 const resultPage = document.getElementById('resultPage');
@@ -31,6 +16,35 @@ const questionText = document.getElementById('questionText');
 const optionsContainer = document.getElementById('optionsContainer');
 const progressIndicator = document.getElementById('progressIndicator');
 
+// ========== ЗАГРУЗКА ТЕСТА С БЭКЕНДА ==========
+async function loadTest() {
+    try {
+       // Загружаем тест (ID = 1, потом можно будет выбирать)
+        const response = await fetch("http://localhost:8080/tests/1");
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        testData = await response.json();
+        console.log("Тест загружен:", testData);
+        
+        // Инициализируем userAnswers для всех вопросов
+        userAnswers = {};
+        testData.questions.forEach(q => {
+            userAnswers[q.id] = null;
+        });
+        
+        // Показываем первый вопрос
+        currentQuestionIndex = 0;
+        renderCurrentQuestion();
+        
+    } catch (error) {
+        console.error("Ошибка загрузки теста:", error);
+        alert("Не удалось загрузить тест. Проверьте, запущен ли сервер на http://localhost:8080");
+    }
+}
+
 // ========== МОДАЛЬНОЕ ОКНО РЕГИСТРАЦИИ ==========
 function showRegistrationModal() {
     return new Promise((resolve) => {
@@ -39,7 +53,7 @@ function showRegistrationModal() {
         modalDiv.innerHTML = `
             <div class="modal-content">
                 <h2>📝 Регистрация</h2>
-                <p style="color: #112250; margin-bottom: 10px;">Пожалуйста, представьтесь</p>
+                <p style="color: #D9CBC2; margin-bottom: 10px;">Пожалуйста, представьтесь</p>
                 <input type="text" id="regName" placeholder="Имя *" autocomplete="off">
                 <input type="password" id="regPassword" placeholder="Пароль *" autocomplete="off">
                 <input type="date" id="regBirth" placeholder="Дата рождения">
@@ -73,23 +87,56 @@ function showRegistrationModal() {
             }
 
             if (!password) {
-            errorDiv.innerText = 'Пожалуйста, введите пароль';
-            return false;
+                errorDiv.innerText = 'Пожалуйста, введите пароль';
+                return false;
+            }
+
+            if (password.length < 6) {
+                errorDiv.innerText = 'Пароль должен быть не менее 6 символов';
+                return false;
             }
 
             return true;
         };
 
-        confirmBtn.onclick = () => {
+        confirmBtn.onclick = async () => {
             if (validate()) {
-                userData = {
+                const user = {
                     name: nameInput.value.trim(),
                     password: passwordInput.value,
-                    birth: birthInput.value || 'Не указана',
-                    email: emailInput.value.trim() || 'Не указан'
+                    birth: birthInput.value || null,
+                    email: emailInput.value.trim() || null
                 };
-                cleanup();
-                resolve(true);
+                
+                // Отправляем данные пользователя на сервер в /register
+                try {
+                    const response = await fetch("http://localhost:8080/register", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(user)
+                    });
+                    
+                    if (response.ok) {
+                        const savedUser = await response.json();
+                        userData = {
+                            id: savedUser.id,
+                            name: user.name,
+                            password: user.password,
+                            birth: user.birth,
+                            email: user.email
+                        };
+                        cleanup();
+                        resolve(true);
+                    } else {
+                        const error = await response.json();
+                        errorDiv.innerText = error.message || 'Ошибка регистрации';
+                    }
+                } catch (error) {
+                    errorDiv.innerText = 'Ошибка соединения с сервером';
+                    console.error('Registration error:', error);
+                }
             }
         };
 
@@ -102,26 +149,31 @@ function showRegistrationModal() {
 
 // ========== ОТРИСОВКА ТЕКУЩЕГО ВОПРОСА ==========
 function renderCurrentQuestion() {
-    const q = QUESTIONS[currentQuestionIndex];
-    questionText.innerText = q.text;
-    progressIndicator.innerText = `Вопрос ${currentQuestionIndex + 1} / ${QUESTIONS.length}`;
+    if (!testData || !testData.questions) return;
+    
+    const question = testData.questions[currentQuestionIndex];
+    questionText.innerText = question.text;
+    progressIndicator.innerText = `Вопрос ${currentQuestionIndex + 1} / ${testData.questions.length}`;
     
     optionsContainer.innerHTML = '';
-    q.options.forEach((opt, idx) => {
-        const isSelected = (userAnswers[currentQuestionIndex] === idx);
+    
+    question.answers.forEach((answer, idx) => {
+        const isSelected = (userAnswers[question.id] === answer.id);
         const div = document.createElement('div');
         div.className = `option-item ${isSelected ? 'selected' : ''}`;
         
         const radio = document.createElement('input');
         radio.type = 'radio';
-        radio.name = 'question';
-        radio.value = idx;
+        radio.name = 'question_${question.id}';
+        radio.value = answer.id;
         radio.checked = isSelected;
         radio.className = 'option-radio';
+        radio.id = `q_${question.id}_${answer.id}`;
         
         const label = document.createElement('label');
         label.className = 'option-label';
-        label.innerText = opt;
+        label.htmlFor = `q_${question.id}_${answer.id}`;
+        label.innerText = answer.text;
         
         div.appendChild(radio);
         div.appendChild(label);
@@ -130,13 +182,13 @@ function renderCurrentQuestion() {
             if (e.target.tagName !== 'INPUT') {
                 radio.checked = true;
             }
-            userAnswers[currentQuestionIndex] = idx;
+            userAnswers[question.id] = answer.id;
             document.querySelectorAll('.option-item').forEach(item => item.classList.remove('selected'));
             div.classList.add('selected');
         });
         
         radio.addEventListener('change', () => {
-            userAnswers[currentQuestionIndex] = idx;
+            userAnswers[question.id] = answer.id;
             document.querySelectorAll('.option-item').forEach(item => item.classList.remove('selected'));
             div.classList.add('selected');
         });
@@ -147,118 +199,121 @@ function renderCurrentQuestion() {
     backBtn.disabled = (currentQuestionIndex === 0);
 }
 
-// ========== РАСЧЁТ СТАТИСТИКИ И РЕЗУЛЬТАТА ==========
-function calculateResults() {
-    // Подсчёт, какой вариант ответа чаще выбирался
-    const answerCounts = [0, 0, 0];
-    for (let i = 0; i < userAnswers.length; i++) {
-        if (userAnswers[i] !== null) {
-            answerCounts[userAnswers[i]]++;
+// ========== ОТПРАВКА РЕЗУЛЬТАТОВ НА СЕРВЕР ==========
+async function submitTest() {
+    // Проверяем, что на все вопросы ответили
+    const allAnswered = testData.questions.every(q => userAnswers[q.id] !== null);
+    if (!allAnswered) {
+        alert('Пожалуйста, ответьте на все вопросы');
+        return false;
+    }
+    
+    // Показываем экран загрузки (если он есть)
+    const loadingScreen = document.getElementById('loadingScreen');
+    if (loadingScreen) {
+        document.getElementById('app').style.display = 'none';
+        loadingScreen.style.display = 'block';
+    }
+    
+    try {
+        const response = await fetch("http://localhost:8080/tests/1/submit", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                user_id: userData?.id,
+                answers: userAnswers
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+        
+        const result = await response.json();
+        
+        if (loadingScreen) {
+            loadingScreen.style.display = 'none';
+        }
+        
+        showResultPage(result);
+        return true;
+        
+    } catch (error) {
+        console.error("Ошибка отправки результатов:", error);
+        
+        if (loadingScreen) {
+            loadingScreen.style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+        }
+        
+        alert("Ошибка при отправке результатов. Попробуйте ещё раз.");
+        return false;
     }
-    
-    // Определяем доминирующий тип
-    let dominantType = '';
-    let maxCount = Math.max(...answerCounts);
-    let dominantIndex = answerCounts.indexOf(maxCount);
-    
-    if (dominantIndex === 0) dominantType = '🏛️ Рациональный тип';
-    else if (dominantIndex === 1) dominantType = '🎨 Креативный тип';
-    else dominantType = '🌿 Гармоничный тип';
-    
-    // Текстовое описание результата
-    let resultDescription = '';
-    if (dominantIndex === 0) {
-        resultDescription = 'Вы цените порядок, стабильность и логику. Вам нравится всё планировать и следовать правилам.';
-    } else if (dominantIndex === 1) {
-        resultDescription = 'Вы творческая личность, любите свободу и новые впечатления. Вам важно самовыражение.';
-    } else {
-        resultDescription = 'Вы стремитесь к балансу, цените гармонию и хорошие отношения с окружающими.';
-    }
-    
-    return {
-        dominantType: dominantType,
-        description: resultDescription,
-        answerCounts: answerCounts,
-        totalQuestions: QUESTIONS.length
-    };
 }
 
 // ========== ПОКАЗ СТРАНИЦЫ РЕЗУЛЬТАТОВ ==========
-function showResultPage() {
-    const results = calculateResults();
-    
-    // Скрываем карточку теста, показываем страницу результатов
+function showResultPage(result) {
     document.getElementById('app').style.display = 'none';
     resultPage.style.display = 'block';
     
-    // Отображаем информацию о пользователе
     const userInfoDiv = document.getElementById('resultUserInfo');
-    userInfoDiv.innerHTML = `
-        <strong>👤 ${userData.name}</strong><br>
-        📅 Дата рождения: ${userData.birth}<br>
-        📧 Email: ${userData.email}
-    `;
-    
-    // Отображаем основной результат
-    const resultMessageDiv = document.getElementById('resultMessage');
-    resultMessageDiv.innerHTML = `
-        <strong>${results.dominantType}</strong><br><br>
-        ${results.description}
-    `;
-    
-    // Строим статистику по каждому вопросу
-    const statsContainer = document.getElementById('statisticsContainer');
-    statsContainer.innerHTML = '<h3 style="margin-bottom: 15px; color: #112250;">📈 Детальная статистика</h3>';
-    
-    for (let i = 0; i < QUESTIONS.length; i++) {
-        const answerIndex = userAnswers[i];
-        const question = QUESTIONS[i];
-        const answerText = answerIndex !== null ? question.options[answerIndex] : 'Не отвечено';
-        
-        const statDiv = document.createElement('div');
-        statDiv.className = 'stat-item';
-        statDiv.innerHTML = `
-            <div class="stat-question">Вопрос ${i + 1}: ${question.text}</div>
-            <div class="stat-answer">✓ Ваш ответ: ${answerText}</div>
+    if (userInfoDiv) {
+        userInfoDiv.innerHTML = `
+            <strong>👤 ${userData?.name || 'Гость'}</strong><br>
+            📅 Дата рождения: ${userData?.birth || 'Не указана'}<br>
+            📧 Email: ${userData?.email || 'Не указан'}
         `;
-        statsContainer.appendChild(statDiv);
     }
     
-    // Добавляем общую статистику по типам
-    const summaryDiv = document.createElement('div');
-    summaryDiv.className = 'stat-item';
-    summaryDiv.style.marginTop = '20px';
-    summaryDiv.style.background = '#E0C58F40';
-    summaryDiv.innerHTML = `
-        <div class="stat-question">📊 Общая статистика ответов</div>
-        <div class="stat-answer">🏛️ Рациональные ответы: ${results.answerCounts[0]}</div>
-        <div class="stat-answer">🎨 Креативные ответы: ${results.answerCounts[1]}</div>
-        <div class="stat-answer">🌿 Гармоничные ответы: ${results.answerCounts[2]}</div>
-    `;
-    statsContainer.appendChild(summaryDiv);
+    const resultMessageDiv = document.getElementById('resultMessage');
+    if (resultMessageDiv) {
+        resultMessageDiv.innerHTML = `
+            <strong>${result.title || 'Результат'}</strong><br><br>
+            ${result.description || 'Спасибо за прохождение теста!'}
+        `;
+    }
     
-    // Здесь можно отправить данные на сервер (для будущего бэка)
-    console.log('Данные для отправки на сервер:', {
-        user: userData,
-        answers: userAnswers,
-        results: results
-    });
+    const statsContainer = document.getElementById('statisticsContainer');
+    if (statsContainer && testData) {
+        statsContainer.innerHTML = '<h3 style="margin-bottom: 15px; color: #E0C58F;">📈 Детальная статистика</h3>';
+        
+        for (let i = 0; i < testData.questions.length; i++) {
+            const question = testData.questions[i];
+            const answerId = userAnswers[question.id];
+            const answer = question.answers.find(a => a.id === answerId);
+            const answerText = answer ? answer.text : 'Не отвечено';
+            
+            const statDiv = document.createElement('div');
+            statDiv.className = 'stat-item';
+            statDiv.innerHTML = `
+                <div class="stat-question">Вопрос ${i + 1}: ${question.text}</div>
+                <div class="stat-answer">✓ Ваш ответ: ${answerText}</div>
+            `;
+            statsContainer.appendChild(statDiv);
+        }
+    }
+    
+    console.log('Результаты теста:', result);
 }
 
 // ========== ПЕРЕХОД К СЛЕДУЮЩЕМУ ВОПРОСУ ==========
 function goToNext() {
-    if (userAnswers[currentQuestionIndex] === null) {
+    if (!testData) return;
+    
+    const currentQ = testData.questions[currentQuestionIndex];
+    
+    if (userAnswers[currentQ.id] === null) {
         alert('Пожалуйста, выберите вариант ответа');
         return;
     }
     
-    if (currentQuestionIndex + 1 < QUESTIONS.length) {
+    if (currentQuestionIndex + 1 < testData.questions.length) {
         currentQuestionIndex++;
         renderCurrentQuestion();
     } else {
-        // Последний вопрос - показываем результаты
-        showResultPage();
+        submitTest();
     }
 }
 
@@ -272,14 +327,18 @@ function goToPrev() {
 // ========== ПОЛНЫЙ СБРОС И ЗАНОВО ==========
 function resetAndStartOver() {
     currentQuestionIndex = 0;
-    userAnswers = new Array(QUESTIONS.length).fill(null);
+    userAnswers = {};
     userData = null;
     
-    // Прячем страницу результатов и карточку теста
+    if (testData) {
+        testData.questions.forEach(q => {
+            userAnswers[q.id] = null;
+        });
+    }
+    
     resultPage.style.display = 'none';
     document.getElementById('app').style.display = 'block';
     
-    // Показываем экран приветствия, прячем тест
     welcomeScreen.classList.remove('hidden');
     testScreen.classList.add('hidden');
 }
@@ -291,14 +350,10 @@ async function startTestFlow() {
         return;
     }
     
-    // Прячем приветствие, показываем тест
     welcomeScreen.classList.add('hidden');
     testScreen.classList.remove('hidden');
     
-    // Сбрасываем ответы на случай повторного прохождения
-    currentQuestionIndex = 0;
-    userAnswers = new Array(QUESTIONS.length).fill(null);
-    renderCurrentQuestion();
+    await loadTest();
 }
 
 // ========== НАВЕШИВАЕМ ОБРАБОТЧИКИ ==========
@@ -310,7 +365,7 @@ if (newTestBtn) {
     newTestBtn.onclick = resetAndStartOver;
 }
 
-// Начальное состояние
+// ========== ИНИЦИАЛИЗАЦИЯ ==========
 welcomeScreen.classList.remove('hidden');
 testScreen.classList.add('hidden');
 resultPage.style.display = 'none';

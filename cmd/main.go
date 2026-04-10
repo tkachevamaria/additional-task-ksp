@@ -2,57 +2,34 @@ package main
 
 import (
 	"database/sql"
-	"net/http"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "modernc.org/sqlite"
+
+	"additional-task-ksp/internal/tests"
 )
 
-type Test struct {
-	ID    int    `json:"id"`
-	Title string `json:"title"`
-}
-
-type ErrorResponse struct {
-	Message string `json:"message"` // tag json
-}
-
 func main() {
-
-	router := gin.Default()
-
-	router.Use(cors.Default())
-
-	// Подключаем БД
+	// БД
 	db, err := sql.Open("sqlite", "test.db")
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
 
-	// ===== endpoint: GET /tests =====
-	router.GET("/tests", func(c *gin.Context) {
-		rows, err := db.Query("SELECT id, title FROM tests")
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, ErrorResponse{
-				Message: err.Error(),
-			})
-			return
-		}
-		defer rows.Close()
+	// сервис и хэндлер
+	service := tests.NewService(db)
+	handler := tests.NewHandler(service)
 
-		var tests []Test
+	// роутер
+	router := gin.Default()
+	router.Use(cors.Default())
 
-		for rows.Next() {
-			var t Test
-			rows.Scan(&t.ID, &t.Title)
-			tests = append(tests, t)
-		}
-
-		c.JSON(http.StatusOK, tests)
-	})
-
-	// Запуск сервера
+	//
+	router.GET("/tests", handler.GetAllTests)
+	router.GET("/tests/:id", handler.GetTestByID)
+	router.POST("/tests/:id/submit", handler.SubmitTest)
+	// запуск
 	router.Run(":8080")
 }
