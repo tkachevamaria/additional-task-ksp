@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"net/http"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "modernc.org/sqlite"
 )
@@ -18,6 +19,11 @@ type ErrorResponse struct {
 }
 
 func main() {
+
+	router := gin.Default()
+
+	router.Use(cors.Default())
+
 	// Подключаем БД
 	db, err := sql.Open("sqlite", "test.db")
 	if err != nil {
