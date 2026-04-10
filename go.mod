@@ -1,4 +1,4 @@
-module mod
+module additional-task-ksp
 
 go 1.25.1
 
