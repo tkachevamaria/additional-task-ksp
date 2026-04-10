@@ -41,6 +41,7 @@ function showRegistrationModal() {
                 <h2>📝 Регистрация</h2>
                 <p style="color: #112250; margin-bottom: 10px;">Пожалуйста, представьтесь</p>
                 <input type="text" id="regName" placeholder="Имя *" autocomplete="off">
+                <input type="password" id="regPassword" placeholder="Пароль *" autocomplete="off">
                 <input type="date" id="regBirth" placeholder="Дата рождения">
                 <input type="email" id="regEmail" placeholder="E-mail (необязательно)">
                 <div id="modalError" class="error-message"></div>
@@ -53,6 +54,7 @@ function showRegistrationModal() {
         document.body.appendChild(modalDiv);
 
         const nameInput = modalDiv.querySelector('#regName');
+        const passwordInput = modalDiv.querySelector('#regPassword');
         const birthInput = modalDiv.querySelector('#regBirth');
         const emailInput = modalDiv.querySelector('#regEmail');
         const errorDiv = modalDiv.querySelector('#modalError');
@@ -63,10 +65,18 @@ function showRegistrationModal() {
 
         const validate = () => {
             const name = nameInput.value.trim();
+            const password = passwordInput.value;
+            
             if (!name) {
                 errorDiv.innerText = 'Пожалуйста, введите имя';
                 return false;
             }
+
+            if (!password) {
+            errorDiv.innerText = 'Пожалуйста, введите пароль';
+            return false;
+            }
+
             return true;
         };
 
@@ -74,6 +84,7 @@ function showRegistrationModal() {
             if (validate()) {
                 userData = {
                     name: nameInput.value.trim(),
+                    password: passwordInput.value,
                     birth: birthInput.value || 'Не указана',
                     email: emailInput.value.trim() || 'Не указан'
                 };

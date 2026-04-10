@@ -31,9 +31,6 @@ func main() {
 	}
 	defer db.Close()
 
-	// Создаём роутер
-	router := gin.Default()
-
 	// ===== endpoint: GET /tests =====
 	router.GET("/tests", func(c *gin.Context) {
 		rows, err := db.Query("SELECT id, title FROM tests")

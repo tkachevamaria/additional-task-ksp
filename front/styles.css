@@ -25,7 +25,7 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.4);
     z-index: 0;
 }
 
@@ -407,4 +407,14 @@ h2 {
 hr {
     margin: 20px 0;
     border-color: rgba(224, 197, 143, 0.3);
+}
+
+/* Стили для поля пароля */
+input[type="password"] {
+    letter-spacing: 2px;  /* небольшие пробелы между звёздочками */
+}
+
+/* Эффект при фокусе на поле пароля */
+input[type="password"]:focus {
+    letter-spacing: normal;
 }
