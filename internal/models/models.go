@@ -6,12 +6,12 @@ type ErrorResponse struct {
 	Message string `json:"message"` // tag json
 }
 
-type User struct {
-	ID           int
-	Username     string
-	Email        string
-	PasswordHash string
-}
+// type User struct {
+// 	ID           int
+// 	Username     string
+// 	Email        string
+// 	PasswordHash string
+// }
 
 type Test struct {
 	ID    int
@@ -56,4 +56,11 @@ type Result struct {
 	ID          int    `json:"id"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
+}
+
+type User struct {
+	ID    int    `json:"id"`
+	Name  string `json:"name"`
+	Birth string `json:"birth"`
+	Email string `json:"email"`
 }
