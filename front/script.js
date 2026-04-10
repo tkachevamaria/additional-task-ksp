@@ -91,11 +91,6 @@ function showRegistrationModal() {
                 return false;
             }
 
-            if (password.length < 6) {
-                errorDiv.innerText = 'Пароль должен быть не менее 6 символов';
-                return false;
-            }
-
             return true;
         };
 

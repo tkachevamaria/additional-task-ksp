@@ -270,16 +270,17 @@ func (s *Service) CalculateResult(testID int, answers map[int]int) (models.Resul
 	return result, nil
 }
 
-func (s *Service) CreateUser(name, birth, email, password string) (models.User, error) {
+func (s *Service) CreateUser(name, password, birth, email string) (models.User, error) {
 	var user models.User
 
 	// ⚠️ пока без хеширования (для простоты)
 	res, err := s.db.Exec(`
-		INSERT INTO users (name, birth_date, email, password_hash)
+		INSERT INTO users (username, email, password_hash, birth_date)
 		VALUES (?, ?, ?, ?)
 	`, name, birth, email, password)
 
 	if err != nil {
+		fmt.Print(err)
 		return user, err
 	}
 
