@@ -396,16 +396,25 @@ function resetAndStartOver() {
   }
 
   resultPage.style.display = "none";
-  welcomeScreen.style.display = "block";
-  testScreen.style.display = "none";
+  testScreen.style.display = "block";
 
-  // Сброс анимации приветственного экрана
-  welcomeScreen.style.opacity = "0";
-  welcomeScreen.style.transform = "scale(0.95)";
+  testScreen.style.transition = "all 0.5s ease-out";
+  testScreen.style.opacity = "0";
+  testScreen.style.transform = "scale(0.95)";
+
   setTimeout(() => {
-    welcomeScreen.style.opacity = "1";
-    welcomeScreen.style.transform = "scale(1)";
+    testScreen.style.opacity = "1";
+    testScreen.style.transform = "scale(1)";
   }, 50);
+
+  // Перерисовываем первый вопрос
+  renderCurrentQuestion();
+
+  // Очищаем статистику
+  const statsContainer = document.getElementById("statisticsContainer");
+  if (statsContainer) {
+    statsContainer.innerHTML = "";
+  }
 }
 
 // ========== ЗАПУСК ТЕСТА =============================================================================
