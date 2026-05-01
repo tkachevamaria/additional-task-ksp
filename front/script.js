@@ -199,10 +199,17 @@ function showRegistrationModal() {
             const error = await response.json();
             const errorText = error.message || error.error || "";
             if (errorText.toUpperCase().includes("UNIQUE")) {
-              errorDiv.innerText = "Зайчик, такой email уже существует";
+              // Проверяем, на какое именно поле ругается
+              if (errorText.includes("email")) {
+                errorDiv.innerText = "Зайчик, такой email уже существует";
+              } else if (errorText.includes("password")) {
+                errorDiv.innerText = "Зайчик, такой пароль уже используется";
+              } else {
+                errorDiv.innerText = "Зайчик, такое значение уже существует";
+              }
             } else {
               errorDiv.innerText =
-                error.message || "Зайчик, произошла ошибка регистрации";
+                errorText || "Зайчик, произошла ошибка регистрации";
             }
           }
         } catch (error) {
