@@ -67,7 +67,7 @@ function showRegistrationModal() {
                 <input type="text" id="regName" placeholder="Имя *" autocomplete="off">
                 <input type="password" id="regPassword" placeholder="Пароль *" autocomplete="off">
                 <input type="date" id="regBirth" placeholder="Дата рождения">
-                <input type="email" id="regEmail" placeholder="E-mail (необязательно)">
+                <input type="email" id="regEmail" placeholder="E-mail">
                 <div id="modalError" class="error-message"></div>
                 <div class="modal-buttons">
                     <button class="btn-secondary" id="cancelReg">Отмена</button>
@@ -122,6 +122,49 @@ function showRegistrationModal() {
 
       return true;
     };
+
+    // Функция проверки пароля на совпадение
+    async function checkPasswordMatch() {
+      const name = nameInput.value.trim();
+      const password = passwordInput.value;
+      const email = emailInput.value;
+
+      try {
+        const response = await fetch(
+          "http://localhost:8080/check-password-match",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ name, password, email }),
+          },
+        );
+
+        if (response.ok) {
+          const result = await response.json();
+          if (result.found) {
+            errorDiv.innerHTML = `
+               Ой! Кажется зайчик ввёл неправильный пароль!<br><br>
+               Этот пароль принадлежит зайчику <strong>${escapeHtml(result.suggested_name)}</strong>,
+               с почтой: <strong>${escapeHtml(result.suggested_email)}</strong><br><br>
+               Попробуйте ввести другой пароль или проверьте правильность имени/почты
+            `;
+            return true; // нашли совпадение
+          }
+        }
+      } catch (error) {
+        console.error("Ошибка проверки пароля:", error);
+      }
+      return false; // не нашли совпадений
+    }
+
+    // Простая защита от XSS
+    function escapeHtml(str) {
+      const div = document.createElement("div");
+      div.textContent = str;
+      return div.innerHTML;
+    }
 
     confirmBtn.onclick = async () => {
       if (validate()) {
