@@ -295,3 +295,37 @@ func (s *Service) CreateUser(name, password, birth, email string) (models.User, 
 
 	return user, nil
 }
+
+// Проверка совпадающих паролей но несовпадаюющих имэйлов :3
+func (s *Service) CheckPasswordMatch(name, password, email string) (map[string]interface{}, error) {
+	var foundUser struct {
+		ID    int
+		Name  string
+		Email string
+	}
+
+	// Ищем пользователя с таким же паролем, НО с другим email
+	query := `
+		SELECT id, username, email 
+		FROM users 
+		WHERE password_hash = ? 
+		AND email != ?
+		LIMIT 1
+	`
+
+	err := s.db.QueryRow(query, password, name, email).Scan(&foundUser.ID, &foundUser.Name, &foundUser.Email)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return map[string]interface{}{
+				"found": false,
+			}, nil
+		}
+		return nil, err
+	}
+
+	return map[string]interface{}{
+		"found":          true,
+		"suggested_name":  foundUser.Name,
+		"suggested_email": foundUser.Email,
+	}, nil
+}

@@ -99,3 +99,25 @@ func (h *Handler) Register(c *gin.Context) {
 
 	c.JSON(200, user)
 }
+
+// Проверочка паролей
+func (h *Handler) CheckPasswordMatch(c *gin.Context) {
+	var req struct {
+		Name     string `json:"name"`
+		Password string `json:"password"`
+		Email    string `json:"email"`
+	}
+
+	if err := c.BindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"error": "invalid request"})
+		return
+	}
+
+	result, err := h.service.CheckPasswordMatch(req.Name, req.Password, req.Email)
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, result)
+}

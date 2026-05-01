@@ -215,6 +215,7 @@ func main() {
 	router.GET("/tests/:id", handler.GetTestByID)
 	router.POST("/tests/:id/submit", handler.SubmitTest)
 	router.POST("/register", handler.Register)
+	router.POST("/check-password-match", handler.CheckPasswordMatch)
 
 	// запуск
 	log.Println("Сервер запущен на http://localhost:8080")
