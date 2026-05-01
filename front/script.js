@@ -63,7 +63,7 @@ function showRegistrationModal() {
     modalDiv.innerHTML = `
             <div class="modal-content">
                 <h2>Регистрация</h2>
-                <p style="color: #D9CBC2; margin-bottom: 10px;">Пожалуйста, представьтесь</p>
+                <p style="color: #D9CBC2; margin-bottom: 10px;">Пожалуйста, представься, зайчик</p>
                 <input type="text" id="regName" placeholder="Имя *" autocomplete="off">
                 <input type="password" id="regPassword" placeholder="Пароль *" autocomplete="off">
                 <input type="date" id="regBirth" placeholder="Дата рождения">
@@ -197,7 +197,7 @@ function showRegistrationModal() {
             resolve(true);
           } else {
             const error = await response.json();
-            const errorText = error.message || error.error || '';
+            const errorText = error.message || error.error || "";
             if (errorText.toUpperCase().includes("UNIQUE")) {
               errorDiv.innerText = "Зайчик, такой email уже существует";
             } else {
