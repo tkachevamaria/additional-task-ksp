@@ -197,7 +197,8 @@ function showRegistrationModal() {
             resolve(true);
           } else {
             const error = await response.json();
-            if (error.message && error.message.includes("UNIQUE")) {
+            const errorText = error.message || error.error || '';
+            if (errorText.toUpperCase().includes("UNIQUE")) {
               errorDiv.innerText = "Зайчик, такой email уже существует";
             } else {
               errorDiv.innerText =
