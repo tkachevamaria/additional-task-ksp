@@ -128,13 +128,13 @@ body {
 .welcome-title::before {
   content: "";
   display: inline-block;
-  width: 420px;
-  height: 420px;
+  width: 440px;
+  height: 440px;
   background-image: url("images/Sun.png");
   background-size: contain;
   background-repeat: no-repeat;
   vertical-align: middle;
-  margin-right: 20px;
+  margin-right: -40px;
   animation: swingLeft 3s ease-in-out infinite;
   transform-origin: center;
 }
@@ -142,8 +142,8 @@ body {
 .welcome-title::after {
   content: "";
   display: inline-block;
-  width: 340px;
-  height: 340px;
+  width: 330px;
+  height: 330px;
   background-image: url("images/Moon.png");
   background-size: contain;
   background-repeat: no-repeat;
@@ -156,7 +156,7 @@ body {
 .welcome-title {
   font-family: "LittleStar", sans-serif;
   color: #e0c58f;
-  font-size: 170px;
+  font-size: 140px;
   font-weight: normal;
   display: inline-flex;
   align-items: center;
@@ -177,7 +177,7 @@ body {
 .welcome-hint {
   font-family: "LittleStar", sans-serif;
   color: #e0c58f;
-  font-size: 50px;
+  font-size: 40px;
   text-align: center;
   margin-top: 30px;
   opacity: 0;
