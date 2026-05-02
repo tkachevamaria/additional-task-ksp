@@ -23,7 +23,7 @@ func InitDB(dbPath string) (*sql.DB, error) {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT NOT NULL,
         email TEXT NOT NULL UNIQUE,
-        password_hash TEXT NOT NULL UNIQUE,
+        password TEXT NOT NULL UNIQUE,
         birth_date TEXT
     );
     
