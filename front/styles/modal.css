@@ -13,7 +13,9 @@
   overflow: hidden; /* чтобы картинки не создавали скролл */
 }
 
-/* Левая картинка - выезжает сверху слева */
+/* ==================== Облака и звёздочки ========================================================= */
+
+/* Левая картинка - выезжает сверху слева  - Облака  */
 .modal::before {
   content: "";
   position: absolute;
@@ -32,7 +34,7 @@
   animation: slideInLeft 0.8s ease-out 0.05s forwards;
 }
 
-/* Правая картинка - выезжает снизу справа */
+/* Правая картинка - выезжает снизу справа  - Облака  */
 .modal::after {
   content: "";
   position: absolute;
@@ -83,6 +85,39 @@
   }
 }
 
+/* Звёздочка 1 - сверху справа (через дополнительный класс или :nth-child) */
+.modal-content::before {
+  content: "";
+  position: absolute;
+  top: -30%;
+  right: -100%;
+  width: 550px;
+  height: 550px;
+  background-image: url("../images/Up_stars.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  z-index: 1002;
+  opacity: 1;
+}
+
+/* Звёздочка 2 - снизу слева */
+.modal-content::after {
+  content: "";
+  position: absolute;
+  bottom: -40%;
+  left: -90%;
+  width: 400px;
+  height: 400px;
+  background-image: url("../images/Down_stars.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  z-index: 1002;
+  opacity: 1;
+}
+
+/* ================================================================================================== */
 .modal-content {
   background: rgba(17, 34, 80, 0.95);
   max-width: 450px;
@@ -94,6 +129,22 @@
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
   position: relative;
   overflow: visible;
+
+  /* Анимация появления регистрации */
+  opacity: 0;
+  transform: scale(0.95);
+  animation: modalAppear 0.5s ease-out 0.1s forwards;
+}
+
+@keyframes modalAppear {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* Стиль для приглашения представиться */
