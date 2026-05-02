@@ -1,0 +1,129 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  padding: 20px;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Фоновое изображение */
+.background-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("../images/Зайчики.jpg");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  z-index: 0;
+}
+
+/* Затемнение */
+.overlay-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0);
+  z-index: 1;
+  transition: background 1.5s ease-out;
+}
+
+.overlay-layer.active {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* Контент */
+.content-layer {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.95);
+  transition: all 1s ease-out;
+}
+
+.content-layer.active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Общие карточки */
+.card {
+  max-width: 650px;
+  width: 100%;
+  background: rgba(17, 34, 80, 0.75);
+  backdrop-filter: blur(12px);
+  border-radius: 32px;
+  padding: 40px 32px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(224, 197, 143, 0.3);
+  transition: all 0.3s ease;
+}
+
+.result-card {
+  max-width: 700px;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Общие кнопки */
+.btn-primary {
+  background-color: #e0c58f;
+  color: #112250;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 60px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: #f5f0e9;
+  transform: scale(1.02);
+  color: #112250;
+}
+
+.btn-secondary {
+  background-color: rgba(60, 80, 125, 0.8);
+  color: #f5f0e9;
+  border: 1px solid rgba(224, 197, 143, 0.5);
+  padding: 12px 24px;
+  border-radius: 60px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-secondary:hover {
+  background-color: #3c507d;
+  transform: scale(1.02);
+  border-color: #e0c58f;
+}
+
+/* Шрифты */
+@font-face {
+  font-family: "LittleStar";
+  src: url("../fonts/Childish/Amatic_SC/AmaticSC-Regular.ttf")
+    format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}

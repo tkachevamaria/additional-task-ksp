@@ -1,0 +1,127 @@
+.welcome-screen {
+  text-align: center;
+  padding: 40px;
+  cursor: pointer;
+}
+
+.welcome-screen.no-card {
+  background: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+  border: none;
+  padding: 0;
+}
+
+@keyframes swingLeft {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(12deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes swingRight {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-12deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.welcome-title::before {
+  content: "";
+  display: inline-block;
+  width: 440px;
+  height: 440px;
+  background-image: url("../images/Sun.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  vertical-align: middle;
+  margin-right: -40px;
+  animation: swingLeft 3s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.welcome-title::after {
+  content: "";
+  display: inline-block;
+  width: 330px;
+  height: 330px;
+  background-image: url("../images/Moon.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  vertical-align: middle;
+  margin-left: 20px;
+  animation: swingRight 3s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.welcome-title {
+  font-family: "LittleStar", sans-serif;
+  color: #e0c58f;
+  font-size: 140px;
+  font-weight: normal;
+  display: inline-flex;
+  align-items: center;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transform: translateY(30px);
+  animation: titleAppear 0.8s ease-out 0.5s forwards;
+}
+
+@keyframes titleAppear {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.welcome-hint {
+  font-family: "LittleStar", sans-serif;
+  color: #e0c58f;
+  font-size: 40px;
+  text-align: center;
+  margin-top: 30px;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: hintAppear 0.6s ease-out 1s forwards;
+  cursor: pointer;
+  display: inline-block;
+  width: auto;
+  position: relative;
+  padding-bottom: 8px;
+}
+
+.welcome-hint:hover {
+  opacity: 1 !important;
+}
+
+@keyframes hintAppear {
+  to {
+    opacity: 0.8;
+    transform: translateY(0);
+  }
+}
+
+.welcome-hint::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #e0c58f;
+  transition: width 0.3s ease;
+}
+
+.welcome-hint:hover::after {
+  width: 100%;
+}

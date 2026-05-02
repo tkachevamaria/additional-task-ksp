@@ -61,20 +61,19 @@ function showRegistrationModal() {
     const modalDiv = document.createElement("div");
     modalDiv.className = "modal";
     modalDiv.innerHTML = `
-      <div class="modal-content">
-        <h2>Регистрация</h2>
-        <p style="color: #D9CBC2; margin-bottom: 10px;">Пожалуйста, представься, зайчик</p>
-        <input type="text" id="regName" placeholder="Имя *" autocomplete="off">
-        <input type="password" id="regPassword" placeholder="Пароль *" autocomplete="off">
-        <input type="date" id="regBirth" placeholder="Дата рождения">
-        <input type="email" id="regEmail" placeholder="E-mail">
-        <div id="modalError" class="error-message"></div>
-        <div class="modal-buttons">
-          <button class="btn-secondary" id="cancelReg">Отмена</button>
-          <button class="btn-primary" id="confirmReg">Продолжить</button>
-        </div>
-      </div>
-    `;
+            <div class="modal-content">
+                <p class="registration-prompt">Пожалуйста, представься, зайчик</p>                
+                <input type="text" id="regName" placeholder="Имя *" autocomplete="off">
+                <input type="password" id="regPassword" placeholder="Пароль *" autocomplete="off">
+                <input type="date" id="regBirth" placeholder="Дата рождения">
+                <input type="email" id="regEmail" placeholder="E-mail">
+                <div id="modalError" class="error-message"></div>
+                <div class="modal-buttons">
+                    <button class="btn-secondary" id="cancelReg">Отмена</button>
+                    <button class="btn-primary" id="confirmReg">Продолжить</button>
+                </div>
+            </div>
+        `;
     document.body.appendChild(modalDiv);
 
     const nameInput = modalDiv.querySelector("#regName");
@@ -451,6 +450,7 @@ function resetAndStartOver() {
   resultPage.style.display = "none";
   testScreen.style.display = "block";
 
+  // Анимация, чтобы вопросики красиво выплывали
   testScreen.style.transition = "all 0.5s ease-out";
   testScreen.style.opacity = "0";
   testScreen.style.transform = "scale(0.95)";
