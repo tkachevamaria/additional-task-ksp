@@ -273,9 +273,9 @@ func (s *Service) CalculateResult(testID int, answers map[int]int) (models.Resul
 func (s *Service) CreateUser(name, password, birth, email string) (models.User, error) {
 	var user models.User
 
-	// ⚠️ пока без хеширования (для простоты)
+	//без хеширования
 	res, err := s.db.Exec(`
-		INSERT INTO users (username, email, password_hash, birth_date)
+		INSERT INTO users (username, email, password, birth_date)
 		VALUES (?, ?, ?, ?)
 	`, name, birth, email, password)
 
@@ -308,12 +308,16 @@ func (s *Service) CheckPasswordMatch(name, password, email string) (map[string]i
 	query := `
 		SELECT id, username, email 
 		FROM users 
-		WHERE password_hash = ? 
+		WHERE password = ? 
 		AND email != ?
 		LIMIT 1
 	`
 
-	err := s.db.QueryRow(query, password, name, email).Scan(&foundUser.ID, &foundUser.Name, &foundUser.Email)
+	err := s.db.QueryRow(query, password, email).Scan(
+		&foundUser.ID,
+		&foundUser.Name,
+		&foundUser.Email,
+	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return map[string]interface{}{
@@ -324,7 +328,7 @@ func (s *Service) CheckPasswordMatch(name, password, email string) (map[string]i
 	}
 
 	return map[string]interface{}{
-		"found":          true,
+		"found":           true,
 		"suggested_name":  foundUser.Name,
 		"suggested_email": foundUser.Email,
 	}, nil

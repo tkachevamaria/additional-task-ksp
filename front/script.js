@@ -115,13 +115,6 @@ function showRegistrationModal() {
         return false;
       }
 
-      // Простая валидация email
-      //   const emailRegex = /^[^\s@]+@([^\s@]+\.)+[^\s@]+$/;
-      //   if (!emailRegex.test(email)) {
-      //     errorDiv.innerText = "❌ Введите корректный email";
-      //     return false;
-      //   }
-
       return true;
     };
 
@@ -170,6 +163,10 @@ function showRegistrationModal() {
 
     confirmBtn.onclick = async () => {
       if (validate()) {
+
+        const passwordExists = await checkPasswordMatch();
+        if (passwordExists) return;
+
         const user = {
           name: nameInput.value.trim(),
           password: passwordInput.value,
@@ -200,14 +197,19 @@ function showRegistrationModal() {
           } else {
             const error = await response.json();
             const errorText = error.message || error.error || "";
+
             if (errorText.toUpperCase().includes("UNIQUE")) {
               // Проверяем, на какое именно поле ругается
               if (errorText.includes("email")) {
                 errorDiv.innerText = "Зайчик, такой email уже существует";
               } else if (errorText.includes("password")) {
-                errorDiv.innerText = "Зайчик, такой пароль уже используется";
+                const found = await checkPasswordMatch();
+                //вдруг не найдет, хотя вообще должен:
+                if (!found) {
+                  errorDiv.innerText = "Зайчик, такой пароль уже используется (что-то странно)";
+                }
               } else {
-                errorDiv.innerText = "Зайчик, такое значение уже существует";
+                errorDiv.innerText = "Зайчик, такое значение уже существует (?)";
               }
             } else {
               errorDiv.innerText =
