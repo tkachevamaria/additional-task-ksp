@@ -62,7 +62,9 @@ function showRegistrationModal() {
     modalDiv.className = "modal";
     modalDiv.innerHTML = `
             <div class="modal-content">
-                <h2>Регистрация</h2>
+                <div class="modal-decor">
+                  <img src="images/Clouds_registration.png" alt="магия">
+                </div>
                 <p style="color: #D9CBC2; margin-bottom: 10px;">Пожалуйста, представься, зайчик</p>
                 <input type="text" id="regName" placeholder="Имя *" autocomplete="off">
                 <input type="password" id="regPassword" placeholder="Пароль *" autocomplete="off">
@@ -405,6 +407,7 @@ function resetAndStartOver() {
   resultPage.style.display = "none";
   testScreen.style.display = "block";
 
+  // Анимация, чтобы вопросики красиво выплывали
   testScreen.style.transition = "all 0.5s ease-out";
   testScreen.style.opacity = "0";
   testScreen.style.transform = "scale(0.95)";

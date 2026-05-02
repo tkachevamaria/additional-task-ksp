@@ -1,0 +1,155 @@
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(8px);
+}
+
+.modal-content {
+  background: rgba(17, 34, 80, 0.95);
+  max-width: 450px;
+  width: 90%;
+  border-radius: 28px;
+  padding: 32px;
+  border-top: 8px solid #e0c58f;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  position: relative;
+  overflow: visible;
+}
+
+.modal-decor {
+  position: absolute;
+  left: -40px;
+  bottom: -30px;
+  width: 300px;
+  height: 300px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.modal-decor img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.modal-content h2 {
+  color: #e0c58f;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.modal-content p {
+  color: #d9cbc2;
+  text-align: center;
+  font-size: 14px;
+  margin-bottom: 16px;
+  font-style: italic;
+}
+
+.modal-content input {
+  width: 100%;
+  padding: 12px 16px;
+  margin: 12px 0;
+  border: 1px solid rgba(224, 197, 143, 0.5);
+  border-radius: 40px;
+  font-size: 16px;
+  font-family: inherit;
+  transition: 0.2s;
+  background: rgba(245, 240, 233, 0.9);
+  color: #112250;
+  font-weight: 500;
+}
+
+.modal-content input:focus {
+  outline: none;
+  border-color: #e0c58f;
+  background: #f5f0e9;
+  box-shadow: 0 0 0 3px rgba(60, 80, 125, 0.3);
+}
+
+.modal-content input::selection {
+  background: #3c507d;
+  color: #f5f0e9;
+}
+
+input[type="date"] {
+  position: relative;
+  cursor: pointer;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  background-color: #3c507d;
+  border-radius: 10px;
+  padding: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+  width: 22px;
+  height: 22px;
+  margin-right: 8px;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  background-color: #e0c58f;
+  transform: scale(1.1);
+}
+
+input[type="date"]::-webkit-datetime-edit {
+  color: #112250;
+  padding: 0 8px;
+}
+
+input[type="date"]::-webkit-datetime-edit-text {
+  color: #3c507d;
+  padding: 0 4px;
+  font-weight: 600;
+}
+
+input[type="date"]:hover {
+  background: #f5f0e9;
+  border-color: #e0c58f;
+}
+
+input[type="password"] {
+  letter-spacing: 2px;
+}
+
+input[type="password"]:focus {
+  letter-spacing: normal;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.modal-buttons button {
+  flex: 1;
+  padding: 12px;
+  font-size: 16px;
+}
+
+.error-message {
+  color: #e0c58f;
+  font-size: 14px;
+  margin-top: 8px;
+  padding: 8px;
+  background: rgba(224, 197, 143, 0.1);
+  border-radius: 20px;
+  text-align: center;
+}

@@ -1,0 +1,71 @@
+.question-text {
+  font-family: "LittleStar", sans-serif;
+  font-size: 40px;
+  font-weight: 700;
+  color: #f5f0e9;
+  margin-bottom: 30px;
+  line-height: 1.3;
+}
+
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.option-item {
+  background: rgba(60, 80, 125, 0.6);
+  border: 2px solid rgba(224, 197, 143, 0.4);
+  border-radius: 60px;
+  padding: 14px 22px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+  backdrop-filter: blur(4px);
+}
+
+.option-item:hover {
+  border-color: #e0c58f;
+  background: rgba(60, 80, 125, 0.85);
+}
+
+.option-item.selected {
+  border-color: #e0c58f;
+  background: rgba(224, 197, 143, 0.3);
+  box-shadow: 0 0 8px rgba(224, 197, 143, 0.5);
+}
+
+.option-radio {
+  width: 20px;
+  height: 20px;
+  accent-color: #e0c58f;
+  cursor: pointer;
+}
+
+.option-label {
+  font-size: 17px;
+  color: #f5f0e9;
+  font-weight: 500;
+  cursor: pointer;
+  flex: 1;
+}
+
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 24px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(224, 197, 143, 0.2);
+}
+
+.progress {
+  font-size: 14px;
+  color: #d9cbc2;
+  text-align: right;
+  margin-bottom: 16px;
+  font-weight: 500;
+}
