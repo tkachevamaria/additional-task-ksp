@@ -275,7 +275,7 @@ func (s *Service) CreateUser(name, password, birth, email string) (models.User, 
 
 	// ⚠️ пока без хеширования (для простоты)
 	res, err := s.db.Exec(`
-		INSERT INTO users (username, email, password_hash, birth_date)
+		INSERT INTO users (username, email, password, birth_date)
 		VALUES (?, ?, ?, ?)
 	`, name, birth, email, password)
 
