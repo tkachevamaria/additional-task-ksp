@@ -100,10 +100,30 @@ func (h *Handler) Register(c *gin.Context) {
 	c.JSON(200, user)
 }
 
-// Проверочка паролей
-func (h *Handler) CheckPasswordMatch(c *gin.Context) {
+// func (h *Handler) CheckSimilarUser(c *gin.Context) {
+// 	var req struct {
+// 		Name     string `json:"name"`
+// 		Password string `json:"password"`
+// 		Birth    string `json:"birth"`
+// 		Email    string `json:"email"`
+// 	}
+
+// 	if err := c.BindJSON(&req); err != nil {
+// 		c.JSON(400, gin.H{"error": "invalid request"})
+// 		return
+// 	}
+
+// 	result, err := h.service.CheckSimilarUser(req.Name, req.Password, req.Birth, req.Email)
+// 	if err != nil {
+// 		c.JSON(500, gin.H{"error": err.Error()})
+// 		return
+// 	}
+
+// 	c.JSON(200, result)
+// }
+
+func (h *Handler) CheckPasswordOwner(c *gin.Context) {
 	var req struct {
-		Name     string `json:"name"`
 		Password string `json:"password"`
 		Email    string `json:"email"`
 	}
@@ -113,11 +133,63 @@ func (h *Handler) CheckPasswordMatch(c *gin.Context) {
 		return
 	}
 
-	result, err := h.service.CheckPasswordMatch(req.Name, req.Password, req.Email)
+	result, err := h.service.CheckPasswordOwner(req.Password, req.Email)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(200, result)
+}
+
+func (h *Handler) CheckFullMatch(c *gin.Context) {
+	var req struct {
+		Name     string `json:"name" binding:"required"`
+		Password string `json:"password" binding:"required"`
+		Birth    string `json:"birth"`
+		Email    string `json:"email" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
+		return
+	}
+	result, err := h.service.CheckFullMatch(req.Name, req.Password, req.Birth, req.Email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, result)
+}
+
+func (h *Handler) CheckEmailExists(c *gin.Context) {
+	var req struct {
+		Email string `json:"email" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
+		return
+	}
+	result, err := h.service.CheckEmailExists(req.Email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, result)
+}
+
+func (h *Handler) CheckEmailAndPassword(c *gin.Context) {
+	var req struct {
+		Email    string `json:"email" binding:"required"`
+		Password string `json:"password" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
+		return
+	}
+	result, err := h.service.CheckEmailAndPassword(req.Email, req.Password)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, result)
 }

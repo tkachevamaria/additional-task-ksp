@@ -86,135 +86,181 @@ function showRegistrationModal() {
 
     const cleanup = () => modalDiv.remove();
 
-    const validate = () => {
-      const name = nameInput.value.trim();
-      const password = passwordInput.value;
-      const birth = birthInput.value;
-      const email = emailInput.value;
-
-      if (!name) {
-        errorDiv.innerText = "Зайчик забыл ввести имя";
-        return false;
-      }
-
-      if (!password) {
-        errorDiv.innerText = "Зайчик забыл ввести пароль";
-        return false;
-      }
-
-      if (!birth) {
-        errorDiv.innerText = "Зайчик забыл ввести дату рождения";
-        return false;
-      }
-
-      if (!email) {
-        errorDiv.innerText = "Зайчик забыл ввести email";
-        return false;
-      }
-
-      // Простая валидация email
-      //   const emailRegex = /^[^\s@]+@([^\s@]+\.)+[^\s@]+$/;
-      //   if (!emailRegex.test(email)) {
-      //     errorDiv.innerText = "❌ Введите корректный email";
-      //     return false;
-      //   }
-
-      return true;
-    };
-
-    // Функция проверки пароля на совпадение
-    async function checkPasswordMatch() {
-      const name = nameInput.value.trim();
-      const password = passwordInput.value;
-      const email = emailInput.value;
-
-      try {
-        const response = await fetch(
-          "http://localhost:8080/check-password-match",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ name, password, email }),
-          },
-        );
-
-        if (response.ok) {
-          const result = await response.json();
-          if (result.found) {
-            errorDiv.innerHTML = `
-               Ой! Кажется зайчик ввёл неправильный пароль!<br><br>
-               Этот пароль принадлежит зайчику <strong>${escapeHtml(result.suggested_name)}</strong>,
-               с почтой: <strong>${escapeHtml(result.suggested_email)}</strong><br><br>
-               Попробуйте ввести другой пароль или проверьте правильность имени/почты
-            `;
-            return true; // нашли совпадение
-          }
-        }
-      } catch (error) {
-        console.error("Ошибка проверки пароля:", error);
-      }
-      return false; // не нашли совпадений
-    }
-
-    // Простая защита от XSS
     function escapeHtml(str) {
       const div = document.createElement("div");
       div.textContent = str;
       return div.innerHTML;
     }
 
-    confirmBtn.onclick = async () => {
-      if (validate()) {
-        const user = {
-          name: nameInput.value.trim(),
-          password: passwordInput.value,
-          birth: birthInput.value || null,
-          email: emailInput.value.trim(),
-        };
+    const validate = () => {
+      const name = nameInput.value.trim();
+      const password = passwordInput.value;
+      const birth = birthInput.value;
+      const email = emailInput.value.trim();
 
-        try {
-          const response = await fetch("http://localhost:8080/register", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(user),
+      if (!name) {
+        errorDiv.innerText = "Зайчик забыл ввести имя";
+        return false;
+      }
+      if (!password) {
+        errorDiv.innerText = "Зайчик забыл ввести пароль";
+        return false;
+      }
+      if (!birth) {
+        errorDiv.innerText = "Зайчик забыл ввести дату рождения";
+        return false;
+      }
+      if (!email) {
+        errorDiv.innerText = "Зайчик забыл ввести email";
+        return false;
+      }
+      return true;
+    };
+
+    // ─── Вспомогательные запросы к API ─────────────────
+    async function checkFullMatch(name, password, birth, email) {
+      try {
+        const res = await fetch("http://localhost:8080/check-full-match", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, password, birth, email }),
+        });
+        if (res.ok) return await res.json();
+      } catch (e) {
+        console.error("checkFullMatch error:", e);
+      }
+      return { found: false };
+    }
+
+    async function checkEmailExists(email) {
+      try {
+        const res = await fetch("http://localhost:8080/check-email-exists", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        });
+        if (res.ok) return await res.json();
+      } catch (e) {
+        console.error("checkEmailExists error:", e);
+      }
+      return { found: false };
+    }
+
+    async function checkPasswordOwner(password, email) {
+      try {
+        const res = await fetch("http://localhost:8080/check-password-owner", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password, email }),
+        });
+        if (res.ok) return await res.json();
+      } catch (e) {
+        console.error("checkPasswordOwner error:", e);
+      }
+      return { found: false };
+    }
+
+    async function checkEmailAndPassword(email, password) {
+      try {
+          const res = await fetch("http://localhost:8080/check-email-password", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email, password }),
           });
+          if (res.ok) return await res.json();
+      } catch (e) {
+          console.error("checkEmailAndPassword error:", e);
+      }
+      return { found: false };
+    }
 
-          if (response.ok) {
-            const savedUser = await response.json();
-            userData = {
-              id: savedUser.id,
-              name: user.name,
-              password: user.password,
-              birth: user.birth,
-              email: user.email,
-            };
-            cleanup();
-            resolve(true);
+    // ─── Главный обработчик ─────────────────────────
+    confirmBtn.onclick = async () => {
+      if (!validate()) return;
+
+      const user = {
+        name: nameInput.value.trim(),
+        password: passwordInput.value,
+        birth: birthInput.value || null,
+        email: emailInput.value.trim(),
+      };
+
+      // 1. Проверка полного совпадения
+      const fullMatch = await checkFullMatch(user.name, user.password, user.birth, user.email);
+      if (fullMatch.found && fullMatch.all_match) {
+        userData = {
+          id: fullMatch.user.id,
+          name: fullMatch.user.name,
+          password: user.password,
+          birth: fullMatch.user.birth,
+          email: fullMatch.user.email,
+        };
+        cleanup();
+        resolve(true);
+        return;
+      }
+
+      // 2. Проверка совпадения email
+      const emailCheck = await checkEmailExists(user.email);
+      if (emailCheck.found) {
+          // Проверяем, совпадает ли пароль у этого email
+          const emailPwdCheck = await checkEmailAndPassword(user.email, user.password);
+          if (emailPwdCheck.found) {
+              // Email и пароль совпадают, но не все данные → "другие данные"
+              errorDiv.innerText = "🤔 Странно, кажется в прошлый раз были другие данные...";
           } else {
-            const error = await response.json();
-            const errorText = error.message || error.error || "";
-            if (errorText.toUpperCase().includes("UNIQUE")) {
-              // Проверяем, на какое именно поле ругается
-              if (errorText.includes("email")) {
-                errorDiv.innerText = "Зайчик, такой email уже существует";
-              } else if (errorText.includes("password")) {
-                errorDiv.innerText = "Зайчик, такой пароль уже используется";
-              } else {
-                errorDiv.innerText = "Зайчик, такое значение уже существует";
-              }
-            } else {
-              errorDiv.innerText =
-                errorText || "Зайчик, произошла ошибка регистрации";
-            }
+              errorDiv.innerText = "Зайчик, такой логин уже используется";
           }
-        } catch (error) {
-          errorDiv.innerText = "❌ Ошибка соединения с сервером";
-          console.error("Registration error:", error);
+          return;
+        if (owner.found) {
+          // У кого-то другого такой пароль? Но email занят, а пароль совпадает с чьим-то?
+          // Логичнее: если email занят, и пароль совпадает с паролем владельца email,
+          // тогда это "другие данные". Иначе просто "логин занят".
+          // Нужно узнать пароль владельца email. Давай сделаем ещё один эндпоинт или используем
+          // тот факт, что fullMatch не сработал. Значит, при занятом email пароль не совпал,
+          // потому что fullMatch проверяет email+password+... => нет полного совпадения.
+          // Следовательно, это просто занятый email.
+          errorDiv.innerText = "Зайчик, такой логин уже используется";
+        } else {
+          errorDiv.innerText = "Зайчик, такой логин уже используется";
         }
+        return;
+      }
+
+      // 3. Проверка совпадения пароля
+      const passwordCheck = await checkPasswordOwner(user.password, user.email);
+      if (passwordCheck.found) {
+        errorDiv.innerHTML = `Такой пароль уже используется пользователем <strong>${escapeHtml(passwordCheck.suggested_email)}</strong> с именем <strong>${escapeHtml(passwordCheck.suggested_name)}</strong>`;
+        return;
+      }
+
+      // 4. Если ничего не занято – регистрируем
+      try {
+        const response = await fetch("http://localhost:8080/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(user),
+        });
+
+        if (response.ok) {
+          const savedUser = await response.json();
+          userData = {
+            id: savedUser.id,
+            name: user.name,
+            password: user.password,
+            birth: user.birth,
+            email: user.email,
+          };
+          cleanup();
+          resolve(true);
+        } else {
+          const error = await response.json();
+          const errorText = error.message || error.error || "";
+          errorDiv.innerText = errorText || "Зайчик, произошла ошибка регистрации";
+        }
+      } catch (error) {
+        errorDiv.innerText = "❌ Ошибка соединения с сервером";
+        console.error("Registration error:", error);
       }
     };
 
