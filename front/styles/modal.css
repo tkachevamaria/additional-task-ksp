@@ -21,8 +21,8 @@
   position: absolute;
   top: -5%;
   left: -100px;
-  width: 800px;
-  height: 800px;
+  width: 850px;
+  height: 850px;
   background-image: url("../images/Cloud1_reg.png");
   background-size: contain;
   background-repeat: no-repeat;
@@ -38,10 +38,10 @@
 .modal::after {
   content: "";
   position: absolute;
-  bottom: -45%;
+  bottom: -50%;
   right: -100px;
-  width: 750px;
-  height: 750px;
+  width: 800px;
+  height: 800px;
   background-image: url("../images/Cloud2_reg.png");
   background-size: contain;
   background-repeat: no-repeat;

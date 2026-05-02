@@ -273,9 +273,9 @@ func (s *Service) CalculateResult(testID int, answers map[int]int) (models.Resul
 func (s *Service) CreateUser(name, password, birth, email string) (models.User, error) {
 	var user models.User
 
-	// ⚠️ пока без хеширования (для простоты)
+	// пока без хеширования (для простоты)
 	res, err := s.db.Exec(`
-		INSERT INTO users (username, email, password_hash, birth_date)
+		INSERT INTO users (username, email, password, birth_date)
 		VALUES (?, ?, ?, ?)
 	`, name, birth, email, password)
 
