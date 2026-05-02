@@ -296,40 +296,152 @@ func (s *Service) CreateUser(name, password, birth, email string) (models.User, 
 	return user, nil
 }
 
-// Проверка совпадающих паролей но несовпадаюющих имэйлов :3
-func (s *Service) CheckPasswordMatch(name, password, email string) (map[string]interface{}, error) {
-	var foundUser struct {
-		ID    int
-		Name  string
-		Email string
+// CheckSimilarUser - проверка на полное совпадение
+// func (s *Service) CheckSimilarUser(name, password, birth, email string) (map[string]interface{}, error) {
+// 	var existingUser struct {
+// 		ID           int
+// 		Username     string
+// 		Email        string
+// 		PasswordHash string
+// 		BirthDate    string
+// 	}
+
+// 	// Ищем пользователя с таким же логином И паролем
+// 	query := `
+// 		SELECT id, username, email, password, COALESCE(birth_date, '')
+// 		FROM users
+// 		WHERE username = ? AND password = ?
+// 		LIMIT 1
+// 	`
+
+// 	err := s.db.QueryRow(query, name, password).Scan(
+// 		&existingUser.ID,
+// 		&existingUser.Username,
+// 		&existingUser.Email,
+// 		&existingUser.PasswordHash,
+// 		&existingUser.BirthDate,
+// 	)
+
+// 	if err != nil {
+// 		if errors.Is(err, sql.ErrNoRows) {
+// 			return map[string]interface{}{
+// 				"found": false,
+// 			}, nil
+// 		}
+// 		return nil, err
+// 	}
+
+// 	// Нашли по логину+паролю, проверяем остальное
+// 	allMatch := existingUser.Email == email && existingUser.BirthDate == birth
+
+// 	if allMatch {
+// 		return map[string]interface{}{
+// 			"found":     true,
+// 			"all_match": true,
+// 			"user": map[string]interface{}{
+// 				"id":    existingUser.ID,
+// 				"name":  existingUser.Username,
+// 				"email": existingUser.Email,
+// 				"birth": existingUser.BirthDate,
+// 			},
+// 		}, nil
+// 	}
+
+// 	// Логин+пароль совпали, но данные отличаются
+// 	return map[string]interface{}{
+// 		"found":     true,
+// 		"all_match": false,
+// 	}, nil
+// }
+
+// CheckFullMatch проверяет полное совпадение всех полей
+func (s *Service) CheckFullMatch(name, password, birth, email string) (map[string]interface{}, error) {
+	var user struct {
+		ID       int
+		Username string
+		Email    string
+		Birth    string
 	}
 
-	// Ищем пользователя с таким же паролем, НО с другим email
-	query := `
-		SELECT id, username, email 
-		FROM users 
-		WHERE password = ? 
-		AND email != ?
-		LIMIT 1
-	`
+	query := `SELECT id, username, email, COALESCE(birth_date, '') 
+	          FROM users 
+	          WHERE username = ? AND password = ? AND email = ? AND birth_date = ?`
 
-	err := s.db.QueryRow(query, password, email).Scan(
-		&foundUser.ID,
-		&foundUser.Name,
-		&foundUser.Email,
-	)
+	err := s.db.QueryRow(query, name, password, email, birth).Scan(&user.ID, &user.Username, &user.Email, &user.Birth)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return map[string]interface{}{
-				"found": false,
-			}, nil
+			return map[string]interface{}{"found": false}, nil
+		}
+		return nil, err
+	}
+
+	return map[string]interface{}{
+		"found":     true,
+		"all_match": true,
+		"user": map[string]interface{}{
+			"id":    user.ID,
+			"name":  user.Username,
+			"email": user.Email,
+			"birth": user.Birth,
+		},
+	}, nil
+}
+
+// CheckEmailExists проверяет, существует ли пользователь с таким email
+func (s *Service) CheckEmailExists(email string) (map[string]interface{}, error) {
+	var exists bool
+	query := `SELECT EXISTS(SELECT 1 FROM users WHERE email = ?)`
+	err := s.db.QueryRow(query, email).Scan(&exists)
+	if err != nil {
+		return nil, err
+	}
+	return map[string]interface{}{"found": exists}, nil
+}
+
+// CheckPasswordOwner находит пользователя (кроме указанного email), у которого такой пароль
+func (s *Service) CheckPasswordOwner(password, excludeEmail string) (map[string]interface{}, error) {
+	var owner struct {
+		Username string
+		Email    string
+	}
+
+	query := `SELECT username, email FROM users WHERE password = ? AND email != ? LIMIT 1`
+	err := s.db.QueryRow(query, password, excludeEmail).Scan(&owner.Username, &owner.Email)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return map[string]interface{}{"found": false}, nil
 		}
 		return nil, err
 	}
 
 	return map[string]interface{}{
 		"found":           true,
-		"suggested_name":  foundUser.Name,
-		"suggested_email": foundUser.Email,
+		"suggested_name":  owner.Username,
+		"suggested_email": owner.Email,
+	}, nil
+}
+
+// В сервисе
+func (s *Service) CheckEmailAndPassword(email, password string) (map[string]interface{}, error) {
+	var user struct {
+		ID    int
+		Name  string
+		Birth string
+	}
+	query := `SELECT id, username, COALESCE(birth_date, '') FROM users WHERE email = ? AND password = ?`
+	err := s.db.QueryRow(query, email, password).Scan(&user.ID, &user.Name, &user.Birth)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return map[string]interface{}{"found": false}, nil
+		}
+		return nil, err
+	}
+	return map[string]interface{}{
+		"found": true,
+		"user": map[string]interface{}{
+			"id":    user.ID,
+			"name":  user.Name,
+			"birth": user.Birth,
+		},
 	}, nil
 }
