@@ -62,10 +62,7 @@ function showRegistrationModal() {
     modalDiv.className = "modal";
     modalDiv.innerHTML = `
             <div class="modal-content">
-                <div class="modal-decor">
-                  <img src="images/Clouds_registration.png" alt="магия">
-                </div>
-                <p style="color: #D9CBC2; margin-bottom: 10px;">Пожалуйста, представься, зайчик</p>
+                <p class="registration-prompt">Пожалуйста, представься, зайчик</p>                
                 <input type="text" id="regName" placeholder="Имя *" autocomplete="off">
                 <input type="password" id="regPassword" placeholder="Пароль *" autocomplete="off">
                 <input type="date" id="regBirth" placeholder="Дата рождения">

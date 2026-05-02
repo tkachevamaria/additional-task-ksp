@@ -10,6 +10,77 @@
   justify-content: center;
   z-index: 1000;
   backdrop-filter: blur(8px);
+  overflow: hidden; /* чтобы картинки не создавали скролл */
+}
+
+/* Левая картинка - выезжает сверху слева */
+.modal::before {
+  content: "";
+  position: absolute;
+  top: -5%;
+  left: -100px;
+  width: 800px;
+  height: 800px;
+  background-image: url("../images/Cloud1_reg.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  z-index: 1001;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-200px);
+  animation: slideInLeft 0.8s ease-out 0.05s forwards;
+}
+
+/* Правая картинка - выезжает снизу справа */
+.modal::after {
+  content: "";
+  position: absolute;
+  bottom: -45%;
+  right: -100px;
+  width: 750px;
+  height: 750px;
+  background-image: url("../images/Cloud2_reg.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  z-index: 1001;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(200px);
+  animation: slideInRight 0.8s ease-out 0.15s forwards;
+}
+
+@keyframes slideInLeft {
+  0% {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-200px);
+  }
+  1% {
+    visibility: visible;
+  }
+  100% {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  0% {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(200px);
+  }
+  1% {
+    visibility: visible;
+  }
+  100% {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+  }
 }
 
 .modal-content {
@@ -25,20 +96,15 @@
   overflow: visible;
 }
 
-.modal-decor {
-  position: absolute;
-  left: -40px;
-  bottom: -30px;
-  width: 300px;
-  height: 300px;
-  pointer-events: none;
-  z-index: 10;
-}
-
-.modal-decor img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+/* Стиль для приглашения представиться */
+.registration-prompt {
+  color: #e0c58f !important;
+  text-align: center !important;
+  font-size: 30px !important;
+  margin-bottom: 24px !important;
+  font-family: "LittleStar", sans-serif !important;
+  font-weight: normal !important;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3) !important;
 }
 
 .modal-content h2 {
@@ -152,4 +218,8 @@ input[type="password"]:focus {
   background: rgba(224, 197, 143, 0.1);
   border-radius: 20px;
   text-align: center;
+}
+
+.error-message:empty {
+  display: none;
 }
