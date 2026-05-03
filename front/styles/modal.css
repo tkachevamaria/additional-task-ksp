@@ -263,12 +263,14 @@ input[type="password"]:focus {
 
 .error-message {
   color: #e0c58f;
-  font-size: 14px;
+  font-size: 20px;
   margin-top: 8px;
   padding: 8px;
   background: rgba(224, 197, 143, 0.1);
   border-radius: 20px;
   text-align: center;
+  letter-spacing: 0.5px; /* пробелы между буквами */
+  word-spacing: 2px; /* пробелы между словами */
 }
 
 .error-message:empty {
