@@ -64,3 +64,9 @@ type User struct {
 	Birth string `json:"birth"`
 	Email string `json:"email"`
 }
+
+type ZodiacResult struct {
+	ID          int
+	Title       string
+	Description string
+}

@@ -45,33 +45,31 @@ func (h *Handler) GetTestByID(c *gin.Context) {
 	c.JSON(http.StatusOK, test)
 }
 
-// // POST /tests/:id/submit
-// func (h *Handler) SubmitTest(c *gin.Context) {
-// 	idParam := c.Param("id")
+func (h *Handler) SubmitTest(c *gin.Context) {
+	testID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid test ID"})
+		return
+	}
 
-// 	testID, err := strconv.Atoi(idParam)
-// 	if err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid test id"})
-// 		return
-// 	}
+	var req struct {
+		UserID    int    `json:"user_id"`
+		BirthDate string `json:"birth_date"`
+	}
 
-// 	var req struct {
-// 		Answers map[int]int `json:"answers"` // question_id -> answer_id
-// 	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
+		return
+	}
 
-// 	if err := c.BindJSON(&req); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
-// 		return
-// 	}
+	result, err := h.service.SubmitTest(testID, req.UserID, req.BirthDate)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 
-// 	result, err := h.service.CalculateResult(testID, req.Answers)
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-// 		return
-// 	}
-
-// 	c.JSON(http.StatusOK, result)
-// }
+	c.JSON(http.StatusOK, result)
+}
 
 func (h *Handler) Register(c *gin.Context) {
 	var req struct {

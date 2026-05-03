@@ -271,63 +271,7 @@ function showRegistrationModal() {
   });
 }
 
-// ========== ОТРИСОВКА ТЕКУЩЕГО ВОПРОСА ==========================================================
-function renderCurrentQuestion() {
-  if (!testData || !testData.questions) return;
-
-  const question = testData.questions[currentQuestionIndex];
-  questionText.innerText = question.text;
-  progressIndicator.innerText = `Вопрос ${currentQuestionIndex + 1} / ${testData.questions.length}`;
-
-  optionsContainer.innerHTML = "";
-
-  question.answers.forEach((answer) => {
-    const isSelected = userAnswers[question.id] === answer.id;
-    const div = document.createElement("div");
-    div.className = `option-item ${isSelected ? "selected" : ""}`;
-
-    const radio = document.createElement("input");
-    radio.type = "radio";
-    radio.name = `question_${question.id}`;
-    radio.value = answer.id;
-    radio.checked = isSelected;
-    radio.className = "option-radio";
-    radio.id = `q_${question.id}_${answer.id}`;
-
-    const label = document.createElement("label");
-    label.className = "option-label";
-    label.htmlFor = `q_${question.id}_${answer.id}`;
-    label.innerText = answer.text;
-
-    div.appendChild(radio);
-    div.appendChild(label);
-
-    div.addEventListener("click", (e) => {
-      if (e.target.tagName !== "INPUT") {
-        radio.checked = true;
-      }
-      userAnswers[question.id] = answer.id;
-      document
-        .querySelectorAll(".option-item")
-        .forEach((item) => item.classList.remove("selected"));
-      div.classList.add("selected");
-    });
-
-    radio.addEventListener("change", () => {
-      userAnswers[question.id] = answer.id;
-      document
-        .querySelectorAll(".option-item")
-        .forEach((item) => item.classList.remove("selected"));
-      div.classList.add("selected");
-    });
-
-    optionsContainer.appendChild(div);
-  });
-
-  backBtn.disabled = currentQuestionIndex === 0;
-}
-
-// ========== ОТПРАВКА РЕЗУЛЬТАТОВ ==================================================================
+/// ========== ОТПРАВКА РЕЗУЛЬТАТОВ ==================================================================
 async function submitTest() {
   const allAnswered = testData.questions.every(
     (q) => userAnswers[q.id] !== null,
@@ -345,7 +289,7 @@ async function submitTest() {
       },
       body: JSON.stringify({
         user_id: userData?.id,
-        answers: userAnswers,
+        birth_date: userData?.birth,  // Дата рождения из регистрации
       }),
     });
 
@@ -364,7 +308,7 @@ async function submitTest() {
 }
 
 // ========== ПОКАЗ РЕЗУЛЬТАТОВ ===================================================================
-function showResultPage(result) {
+function showResultPage(data) {
   welcomeScreen.style.display = "none";
   testScreen.style.display = "none";
   resultPage.style.display = "block";
@@ -372,43 +316,29 @@ function showResultPage(result) {
   const userInfoDiv = document.getElementById("resultUserInfo");
   if (userInfoDiv) {
     userInfoDiv.innerHTML = `
-            <strong>👤 ${userData?.name || "Гость"}</strong><br>
-            📅 Дата рождения: ${userData?.birth || "Не указана"}<br>
-            📧 Email: ${userData?.email || "Не указан"}
-        `;
+      <strong>👤 ${userData?.name || "Гость"}</strong><br>
+      Дата рождения: ${userData?.birth || "Не указана"}<br>
+      Знак зодиака: ${data.zodiac_sign || "Не определён"}<br>
+      Email: ${userData?.email || "Не указан"}
+    `;
   }
 
   const resultMessageDiv = document.getElementById("resultMessage");
   if (resultMessageDiv) {
     resultMessageDiv.innerHTML = `
-            <strong>${result.title || "Результат"}</strong><br><br>
-            ${result.description || "Спасибо за прохождение теста!"}
-        `;
+      <strong>${data.result.title || "Результат"}</strong><br><br>
+      ${data.result.description || "Спасибо за прохождение теста!"}
+    `;
   }
 
-  const statsContainer = document.getElementById("statisticsContainer");
-  if (statsContainer && testData) {
-    statsContainer.innerHTML = "<h3>📈 Детальная статистика</h3>";
-
-    for (let i = 0; i < testData.questions.length; i++) {
-      const question = testData.questions[i];
-      const answerId = userAnswers[question.id];
-      const answer = question.answers.find((a) => a.id === answerId);
-      const answerText = answer ? answer.text : "Не отвечено";
-
-      const statDiv = document.createElement("div");
-      statDiv.className = "stat-item";
-      statDiv.innerHTML = `
-                <div class="stat-question">Вопрос ${i + 1}: ${question.text}</div>
-                <div class="stat-answer">✓ Ваш ответ: ${answerText}</div>
-            `;
-      statsContainer.appendChild(statDiv);
-    }
+  // Картинка результата (если есть)
+  const resultImage = document.getElementById("resultImage");
+  if (resultImage) {
+    resultImage.src = `/static/images/results/${data.result.id}.png`;
+    resultImage.style.display = "block";
   }
 
-  console.log("Результаты теста:", result);
 }
-
 // ========== НАВИГАЦИЯ ===========================================================================
 function goToNext() {
   if (!testData) return;

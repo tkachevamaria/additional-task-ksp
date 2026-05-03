@@ -122,8 +122,7 @@ func (s *Service) getAnswersByQuestionID(questionID int) ([]models.Answer, error
 	return answers, nil
 }
 
-// SubmitTest сохраняет результаты прохождения теста и возвращает результат
-func (s *Service) SubmitTest(testID, userID int, answers map[int]int) (*models.TestResult, error) {
+func (s *Service) SubmitTest(testID, userID int, birthDate string) (map[string]interface{}, error) {
 	// 1. Проверяем существует ли тест
 	var testTitle string
 	err := s.db.QueryRow("SELECT title FROM tests WHERE id = ?", testID).Scan(&testTitle)
@@ -134,88 +133,42 @@ func (s *Service) SubmitTest(testID, userID int, answers map[int]int) (*models.T
 		return nil, fmt.Errorf("failed to get test: %w", err)
 	}
 
-	// 2. Проверяем все ли ответы валидны
-	resultTags, err := s.validateAnswers(answers)
+	// 2. Определяем знак зодиака (id и название)
+	zodiacID, zodiacName, err := ZodiacSign(birthDate)
+	if err != nil {
+		return nil, fmt.Errorf("failed to determine zodiac sign: %w", err)
+	}
+
+	// 3. Получаем результат по ID (он же id знака зодиака)
+	result, err := s.getResultByID(testID, zodiacID)
 	if err != nil {
 		return nil, err
 	}
 
-	// 3. Подсчитываем результат (какой result_tag чаще всего встречается)
-	finalTag := s.calculateResultTag(resultTags)
-
-	// 4. Получаем информацию о результате из таблицы results
-	result, err := s.getResultByTag(testID, finalTag)
-	if err != nil {
-		return nil, err
-	}
-
-	return result, nil
+	return map[string]interface{}{
+		"zodiac_sign": zodiacName,
+		"result": map[string]interface{}{
+			"id":          result.ID,
+			"title":       result.Title,
+			"description": result.Description,
+		},
+	}, nil
 }
 
-// validateAnswers проверяет, что все answers существуют и возвращает их result_tag
-func (s *Service) validateAnswers(answers map[int]int) ([]string, error) {
-	var resultTags []string
-
-	for questionID, answerID := range answers {
-		var resultTag string
-		query := "SELECT result_tag FROM answers WHERE id = ? AND question_id = ?"
-		err := s.db.QueryRow(query, answerID, questionID).Scan(&resultTag)
-		if err != nil {
-			if err == sql.ErrNoRows {
-				return nil, fmt.Errorf("invalid answer: question_id=%d, answer_id=%d", questionID, answerID)
-			}
-			return nil, fmt.Errorf("failed to validate answer: %w", err)
-		}
-		resultTags = append(resultTags, resultTag)
-	}
-
-	return resultTags, nil
-}
-
-// calculateResultTag определяет финальный тег результата (тот, который чаще всего встречается)
-func (s *Service) calculateResultTag(resultTags []string) string {
-	if len(resultTags) == 0 {
-		return "unknown"
-	}
-
-	tagCount := make(map[string]int)
-	for _, tag := range resultTags {
-		tagCount[tag]++
-	}
-
-	var maxTag string
-	maxCount := 0
-	for tag, count := range tagCount {
-		if count > maxCount {
-			maxCount = count
-			maxTag = tag
-		}
-	}
-
-	return maxTag
-}
-
-// getResultByTag получает результат из таблицы results по test_id и result_tag
-func (s *Service) getResultByTag(testID int, resultTag string) (*models.TestResult, error) {
-	var result models.TestResult
-	query := `
-        SELECT id, title, description, result_tag 
-        FROM results 
-        WHERE test_id = ? AND result_tag = ?
-    `
-	err := s.db.QueryRow(query, testID, resultTag).Scan(
-		&result.ID, &result.Title, &result.Description, &result.ResultTag,
+func (s *Service) getResultByID(testID, resultID int) (*models.ZodiacResult, error) {
+	var result models.ZodiacResult
+	query := `SELECT id, title, description FROM results WHERE test_id = ? AND id = ?`
+	err := s.db.QueryRow(query, testID, resultID).Scan(
+		&result.ID, &result.Title, &result.Description,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("result not found for tag: %s", resultTag)
+			return nil, fmt.Errorf("result not found for id: %d", resultID)
 		}
 		return nil, fmt.Errorf("failed to get result: %w", err)
 	}
-
 	return &result, nil
 }
-
 func (s *Service) CalculateResult(testID int, answers map[int]int) (models.Result, error) {
 	tagCount := make(map[string]int)
 
