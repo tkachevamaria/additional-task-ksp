@@ -162,14 +162,14 @@ function showRegistrationModal() {
 
     async function checkEmailAndPassword(email, password) {
       try {
-          const res = await fetch("http://localhost:8080/check-email-password", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ email, password }),
-          });
-          if (res.ok) return await res.json();
+        const res = await fetch("http://localhost:8080/check-email-password", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+        if (res.ok) return await res.json();
       } catch (e) {
-          console.error("checkEmailAndPassword error:", e);
+        console.error("checkEmailAndPassword error:", e);
       }
       return { found: false };
     }
@@ -186,7 +186,12 @@ function showRegistrationModal() {
       };
 
       // 1. Проверка полного совпадения
-      const fullMatch = await checkFullMatch(user.name, user.password, user.birth, user.email);
+      const fullMatch = await checkFullMatch(
+        user.name,
+        user.password,
+        user.birth,
+        user.email,
+      );
       if (fullMatch.found && fullMatch.all_match) {
         userData = {
           id: fullMatch.user.id,
@@ -203,15 +208,19 @@ function showRegistrationModal() {
       // 2. Проверка совпадения email
       const emailCheck = await checkEmailExists(user.email);
       if (emailCheck.found) {
-          // Проверяем, совпадает ли пароль у этого email
-          const emailPwdCheck = await checkEmailAndPassword(user.email, user.password);
-          if (emailPwdCheck.found) {
-              // Email и пароль совпадают, но не все данные → "другие данные"
-              errorDiv.innerText = "🤔 Странно, кажется в прошлый раз были другие данные...";
-          } else {
-              errorDiv.innerText = "Зайчик, такой логин уже используется";
-          }
-          return;
+        // Проверяем, совпадает ли пароль у этого email
+        const emailPwdCheck = await checkEmailAndPassword(
+          user.email,
+          user.password,
+        );
+        if (emailPwdCheck.found) {
+          // Email и пароль совпадают, но не все данные → "другие данные"
+          errorDiv.innerText =
+            " Странно, кажется в прошлый раз были другие данные...";
+        } else {
+          errorDiv.innerText = "Зайчик, такой логин уже используется";
+        }
+        return;
         if (owner.found) {
           // У кого-то другого такой пароль? Но email занят, а пароль совпадает с чьим-то?
           // Логичнее: если email занят, и пароль совпадает с паролем владельца email,
@@ -256,7 +265,8 @@ function showRegistrationModal() {
         } else {
           const error = await response.json();
           const errorText = error.message || error.error || "";
-          errorDiv.innerText = errorText || "Зайчик, произошла ошибка регистрации";
+          errorDiv.innerText =
+            errorText || "Зайчик, произошла ошибка регистрации";
         }
       } catch (error) {
         errorDiv.innerText = "❌ Ошибка соединения с сервером";
