@@ -117,7 +117,7 @@ body {
   transform: scale(1.02);
   border-color: #e0c58f;
 }
-
+/* ================================ Шрифты ===================================== */
 /* Шрифты */
 @font-face {
   font-family: "LittleStar";
@@ -127,3 +127,54 @@ body {
   font-style: normal;
   font-display: swap;
 }
+
+/* Шрифт для всего */
+body,
+button,
+input,
+.option-label,
+.registration-prompt,
+.modal-content,
+.result-text,
+.stat-item,
+.user-info-badge,
+.progress,
+.btn-primary,
+.btn-secondary {
+  font-family: "LittleStar", sans-serif;
+  font-size: 24px !important;
+}
+
+/* Отдельно для инпутов, чтобы не сбрасывался */
+input,
+button {
+  font-family: "LittleStar", sans-serif;
+  font-size: 24px !important;
+}
+
+/* Для placeholder тоже */
+input::placeholder {
+  font-family: "LittleStar", sans-serif;
+  opacity: 0.7;
+}
+/* =========================================================================================== */
+
+/* ================================ Курсоры ================================================== */
+
+/* Базовый курсор для всей страницы */
+/* body {
+  cursor: url("../images/ваша_картинка.png") 16 16, auto;
+} */
+
+/* Для кнопок — изменение курсора */
+/* button, .btn-primary, .btn-secondary, .option-item, .welcome-hint {
+  cursor: url("../images/ваша_картинка_click.png") 16 16, pointer;
+} */
+
+/* Для полей ввода */
+/* input,
+textarea {
+  cursor:
+    url("../images/Cursor/Text_cursor.cur") 16 16,
+    text;
+} */
