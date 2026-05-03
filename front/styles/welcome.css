@@ -41,7 +41,7 @@
   display: inline-block;
   width: 440px;
   height: 440px;
-  background-image: url("../images/Sun.png");
+  background-image: url("../images/Welcome/Sun.png");
   background-size: contain;
   background-repeat: no-repeat;
   vertical-align: middle;
@@ -55,7 +55,7 @@
   display: inline-block;
   width: 330px;
   height: 330px;
-  background-image: url("../images/Moon.png");
+  background-image: url("../images/Welcome/Moon.png");
   background-size: contain;
   background-repeat: no-repeat;
   vertical-align: middle;

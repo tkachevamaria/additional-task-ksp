@@ -23,7 +23,7 @@
   left: -100px;
   width: 850px;
   height: 850px;
-  background-image: url("../images/Cloud1_reg.png");
+  background-image: url("../images/Reg/Cloud1_reg.png");
   background-size: contain;
   background-repeat: no-repeat;
   pointer-events: none;
@@ -42,7 +42,7 @@
   right: -100px;
   width: 800px;
   height: 800px;
-  background-image: url("../images/Cloud2_reg.png");
+  background-image: url("../images/Reg/Cloud2_reg.png");
   background-size: contain;
   background-repeat: no-repeat;
   pointer-events: none;
@@ -93,7 +93,7 @@
   right: -100%;
   width: 550px;
   height: 550px;
-  background-image: url("../images/Up_stars.png");
+  background-image: url("../images/Reg/Up_stars.png");
   background-size: contain;
   background-repeat: no-repeat;
   pointer-events: none;
@@ -109,7 +109,7 @@
   left: -90%;
   width: 400px;
   height: 400px;
-  background-image: url("../images/Down_stars.png");
+  background-image: url("../images/Reg/Down_stars.png");
   background-size: contain;
   background-repeat: no-repeat;
   pointer-events: none;
@@ -263,12 +263,14 @@ input[type="password"]:focus {
 
 .error-message {
   color: #e0c58f;
-  font-size: 14px;
+  font-size: 20px;
   margin-top: 8px;
   padding: 8px;
   background: rgba(224, 197, 143, 0.1);
   border-radius: 20px;
   text-align: center;
+  letter-spacing: 0.5px; /* пробелы между буквами */
+  word-spacing: 2px; /* пробелы между словами */
 }
 
 .error-message:empty {
