@@ -296,64 +296,6 @@ func (s *Service) CreateUser(name, password, birth, email string) (models.User, 
 	return user, nil
 }
 
-// CheckSimilarUser - проверка на полное совпадение
-// func (s *Service) CheckSimilarUser(name, password, birth, email string) (map[string]interface{}, error) {
-// 	var existingUser struct {
-// 		ID           int
-// 		Username     string
-// 		Email        string
-// 		PasswordHash string
-// 		BirthDate    string
-// 	}
-
-// 	// Ищем пользователя с таким же логином И паролем
-// 	query := `
-// 		SELECT id, username, email, password, COALESCE(birth_date, '')
-// 		FROM users
-// 		WHERE username = ? AND password = ?
-// 		LIMIT 1
-// 	`
-
-// 	err := s.db.QueryRow(query, name, password).Scan(
-// 		&existingUser.ID,
-// 		&existingUser.Username,
-// 		&existingUser.Email,
-// 		&existingUser.PasswordHash,
-// 		&existingUser.BirthDate,
-// 	)
-
-// 	if err != nil {
-// 		if errors.Is(err, sql.ErrNoRows) {
-// 			return map[string]interface{}{
-// 				"found": false,
-// 			}, nil
-// 		}
-// 		return nil, err
-// 	}
-
-// 	// Нашли по логину+паролю, проверяем остальное
-// 	allMatch := existingUser.Email == email && existingUser.BirthDate == birth
-
-// 	if allMatch {
-// 		return map[string]interface{}{
-// 			"found":     true,
-// 			"all_match": true,
-// 			"user": map[string]interface{}{
-// 				"id":    existingUser.ID,
-// 				"name":  existingUser.Username,
-// 				"email": existingUser.Email,
-// 				"birth": existingUser.BirthDate,
-// 			},
-// 		}, nil
-// 	}
-
-// 	// Логин+пароль совпали, но данные отличаются
-// 	return map[string]interface{}{
-// 		"found":     true,
-// 		"all_match": false,
-// 	}, nil
-// }
-
 // CheckFullMatch проверяет полное совпадение всех полей
 func (s *Service) CheckFullMatch(name, password, birth, email string) (map[string]interface{}, error) {
 	var user struct {
@@ -421,7 +363,6 @@ func (s *Service) CheckPasswordOwner(password, excludeEmail string) (map[string]
 	}, nil
 }
 
-// В сервисе
 func (s *Service) CheckEmailAndPassword(email, password string) (map[string]interface{}, error) {
 	var user struct {
 		ID    int
