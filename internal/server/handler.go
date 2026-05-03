@@ -1,6 +1,7 @@
 package server
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 
@@ -46,11 +47,16 @@ func (h *Handler) GetTestByID(c *gin.Context) {
 }
 
 func (h *Handler) SubmitTest(c *gin.Context) {
+	log.Printf("📨 [SubmitTest Handler] Получен запрос на отправку теста")
+	log.Printf("📋 [SubmitTest Handler] Параметры запроса: %+v", c.Params)
+
 	testID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
+		log.Printf("❌ [SubmitTest Handler] Невалидный ID теста: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid test ID"})
 		return
 	}
+	log.Printf("🆔 [SubmitTest Handler] Test ID: %d", testID)
 
 	var req struct {
 		UserID    int    `json:"user_id"`
@@ -58,16 +64,21 @@ func (h *Handler) SubmitTest(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Printf("❌ [SubmitTest Handler] Ошибка парсинга JSON: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
 		return
 	}
+	log.Printf("📦 [SubmitTest Handler] Данные запроса: UserID=%d, BirthDate=%s", req.UserID, req.BirthDate)
 
+	log.Printf("🔀 [SubmitTest Handler] Вызываю сервис SubmitTest")
 	result, err := h.service.SubmitTest(testID, req.UserID, req.BirthDate)
 	if err != nil {
+		log.Printf("❌ [SubmitTest Handler] Ошибка сервиса: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
+	log.Printf("✅ [SubmitTest Handler] Успешный ответ: %+v", result)
 	c.JSON(http.StatusOK, result)
 }
 

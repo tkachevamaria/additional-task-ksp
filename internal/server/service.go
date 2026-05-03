@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 )
 
 type Service struct {
@@ -99,7 +100,7 @@ func (s *Service) getQuestionsWithAnswers(testID int) ([]models.QuestionDetail, 
 // getAnswersByQuestionID возвращает все ответы для конкретного вопроса
 func (s *Service) getAnswersByQuestionID(questionID int) ([]models.Answer, error) {
 	query := `
-        SELECT id, text, result_tag 
+        SELECT id, text
         FROM answers 
         WHERE question_id = ? 
         ORDER BY id
@@ -113,7 +114,7 @@ func (s *Service) getAnswersByQuestionID(questionID int) ([]models.Answer, error
 	var answers []models.Answer
 	for rows.Next() {
 		var answer models.Answer
-		if err := rows.Scan(&answer.ID, &answer.Text, &answer.ResultTag); err != nil {
+		if err := rows.Scan(&answer.ID, &answer.Text); err != nil {
 			return nil, fmt.Errorf("failed to scan answer: %w", err)
 		}
 		answers = append(answers, answer)
@@ -122,105 +123,75 @@ func (s *Service) getAnswersByQuestionID(questionID int) ([]models.Answer, error
 	return answers, nil
 }
 
+// SubmitTest принимает ответы и возвращает результат по знаку зодиака
 func (s *Service) SubmitTest(testID, userID int, birthDate string) (map[string]interface{}, error) {
+	log.Printf("[SubmitTest] Начинаю обработку: testID=%d, userID=%d, birthDate=%s", testID, userID, birthDate)
+
 	// 1. Проверяем существует ли тест
+	log.Printf("[SubmitTest] Проверяю существование теста с id=%d", testID)
 	var testTitle string
 	err := s.db.QueryRow("SELECT title FROM tests WHERE id = ?", testID).Scan(&testTitle)
 	if err != nil {
 		if err == sql.ErrNoRows {
+			log.Printf("[SubmitTest] Тест с id=%d не найден", testID)
 			return nil, errors.New("test not found")
 		}
+		log.Printf("[SubmitTest] Ошибка при проверке теста: %v", err)
 		return nil, fmt.Errorf("failed to get test: %w", err)
 	}
+	log.Printf("[SubmitTest] Тест найден: '%s'", testTitle)
 
-	// 2. Определяем знак зодиака (id и название)
+	// 2. Определяем знак зодиака
+	log.Printf("🔮 [SubmitTest] Определяю знак зодиака для даты: %s", birthDate)
 	zodiacID, zodiacName, err := ZodiacSign(birthDate)
 	if err != nil {
+		log.Printf("[SubmitTest] Ошибка определения знака зодиака: %v", err)
 		return nil, fmt.Errorf("failed to determine zodiac sign: %w", err)
 	}
+	log.Printf("[SubmitTest] Знак зодиака: %s (id=%d)", zodiacName, zodiacID)
 
-	// 3. Получаем результат по ID (он же id знака зодиака)
+	// 3. Получаем результат по ID знака зодиака
+	log.Printf("[SubmitTest] Ищу результат для testID=%d, zodiacID=%d", testID, zodiacID)
 	result, err := s.getResultByID(testID, zodiacID)
 	if err != nil {
+		log.Printf("[SubmitTest] Ошибка получения результата: %v", err)
 		return nil, err
 	}
+	log.Printf("[SubmitTest] Результат найден: '%s'", result.Title)
 
-	return map[string]interface{}{
+	finalResult := map[string]interface{}{
 		"zodiac_sign": zodiacName,
 		"result": map[string]interface{}{
 			"id":          result.ID,
 			"title":       result.Title,
 			"description": result.Description,
 		},
-	}, nil
+	}
+
+	log.Printf("[SubmitTest] Возвращаю результат: %+v", finalResult)
+	return finalResult, nil
 }
 
 func (s *Service) getResultByID(testID, resultID int) (*models.ZodiacResult, error) {
+	log.Printf("🔍 [getResultByID] Запрос результата: testID=%d, resultID=%d", testID, resultID)
+
 	var result models.ZodiacResult
 	query := `SELECT id, title, description FROM results WHERE test_id = ? AND id = ?`
+
 	err := s.db.QueryRow(query, testID, resultID).Scan(
 		&result.ID, &result.Title, &result.Description,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
+			log.Printf("[getResultByID] Результат не найден для testID=%d, resultID=%d", testID, resultID)
 			return nil, fmt.Errorf("result not found for id: %d", resultID)
 		}
+		log.Printf("[getResultByID] Ошибка запроса: %v", err)
 		return nil, fmt.Errorf("failed to get result: %w", err)
 	}
+
+	log.Printf("[getResultByID] Найден результат: id=%d, title='%s'", result.ID, result.Title)
 	return &result, nil
-}
-func (s *Service) CalculateResult(testID int, answers map[int]int) (models.Result, error) {
-	tagCount := make(map[string]int)
-
-	// 1. Получаем result_tag для каждого ответа
-	for _, answerID := range answers {
-		var tag string
-
-		err := s.db.QueryRow(
-			"SELECT result_tag FROM answers WHERE id = ?",
-			answerID,
-		).Scan(&tag)
-
-		if err != nil {
-			continue // можно пропускать битые ответы
-		}
-
-		tagCount[tag]++
-	}
-
-	if len(tagCount) == 0 {
-		return models.Result{}, errors.New("no valid answers")
-	}
-
-	// 2. Ищем самый частый тег
-	var bestTag string
-	max := 0
-
-	for tag, count := range tagCount {
-		if count > max {
-			max = count
-			bestTag = tag
-		}
-	}
-
-	// 3. Получаем результат из БД
-	var result models.Result
-
-	err := s.db.QueryRow(`
-		SELECT id, title, description
-		FROM results
-		WHERE test_id = ? AND result_tag = ?
-	`, testID, bestTag).Scan(
-		&result.ID,
-		&result.Title,
-		&result.Description,
-	)
-
-	if err != nil {
-		return models.Result{}, err
-	}
-
-	return result, nil
 }
 
 func (s *Service) CreateUser(name, password, birth, email string) (models.User, error) {
