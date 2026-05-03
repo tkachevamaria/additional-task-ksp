@@ -493,10 +493,12 @@ function goToPrev() {
 
 // ========== СБРОС ===========================================================================
 function resetAndStartOver() {
+  console.log("🔄 [resetAndStartOver] Сброс теста для повторного прохождения");
+  
   currentQuestionIndex = 0;
   userAnswers = {};
-  userData = null;
-
+  // ❌ НЕ сбрасываем userData! userData = null;
+  
   if (testData) {
     testData.questions.forEach((q) => {
       userAnswers[q.id] = null;
@@ -524,6 +526,8 @@ function resetAndStartOver() {
   if (statsContainer) {
     statsContainer.innerHTML = "";
   }
+  
+  console.log("✅ [resetAndStartOver] Сброс завершён, userData сохранены:", userData);
 }
 
 // ========== ЗАПУСК ТЕСТА =============================================================================
