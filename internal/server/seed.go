@@ -133,7 +133,7 @@ func SeedDatabase(db *sql.DB) error {
 		log.Printf("[SeedDatabase] Ответы уже существуют (%d), пропускаю", answersCount)
 	}
 
-	// Вставка результатов (ОСНОВНОЕ ИСПРАВЛЕНИЕ - проверяем отдельно!)
+	// Вставка результатов
 	if resultsCount == 0 {
 		log.Println("[SeedDatabase] Добавляю результаты...")
 		results := []struct {
