@@ -86,6 +86,7 @@ func main() {
 	router.Use(cors.Default())
 
 	// маршруты
+	router.Static("/images", "./front/images/zodiac") //для картиночек
 	router.GET("/tests", handler.GetAllTests)
 	router.GET("/tests/:id", handler.GetTestByID)
 	router.POST("/tests/:id/submit", handler.SubmitTest)

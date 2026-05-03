@@ -456,14 +456,14 @@ function showResultPage(data) {
   // Картинка результата (если есть)
   const resultImage = document.getElementById("resultImage");
   if (resultImage) {
-    resultImage.src = `/static/images/results/${data.result.id}.png`;
+    resultImage.src = `http://localhost:8080/images/${data.result.id}.png`;
     resultImage.style.display = "block";
-    console.log(`🖼️ [showResultPage] Установлена картинка: /static/images/results/${data.result.id}.png`);
+    console.log(`[showResultPage] Установлена картинка: http://localhost:8080/images/${data.result.id}.png`);
   } else {
-    console.warn("⚠️ [showResultPage] resultImage не найден");
+    console.warn("[showResultPage] resultImage не найден");
   }
 
-  console.log("✅ [showResultPage] Отображение завершено");
+  console.log("[showResultPage] Отображение завершено");
 }
 // ========== НАВИГАЦИЯ ===========================================================================
 function goToNext() {
