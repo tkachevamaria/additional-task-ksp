@@ -455,15 +455,20 @@ function showResultPage(data) {
 
   // Картинка результата (если есть)
   const resultImage = document.getElementById("resultImage");
+  const resultImage2 = document.getElementById("resultImage2");
+
   if (resultImage) {
     resultImage.src = `http://localhost:8080/images/${data.result.id}.png`;
     resultImage.style.display = "block";
-    console.log(`[showResultPage] Установлена картинка: http://localhost:8080/images/${data.result.id}.png`);
-  } else {
-    console.warn("[showResultPage] resultImage не найден");
-  }
+  } 
 
-  console.log("[showResultPage] Отображение завершено");
+  // Для Близнецов (id=3) показываем вторую картинку
+  if (data.result.id === 3 && resultImage2) {
+    resultImage2.src = `http://localhost:8080/images/3_2.png`;
+    resultImage2.style.display = "block";
+  } else if (resultImage2) {
+    resultImage2.style.display = "none";
+  }
 }
 // ========== НАВИГАЦИЯ ===========================================================================
 function goToNext() {
