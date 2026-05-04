@@ -87,6 +87,7 @@ func main() {
 
 	// маршруты
 	router.Static("/images", "./front/images/zodiac") //для картиночек
+	router.Static("/test_images", "./front/images")
 	router.GET("/tests", handler.GetAllTests)
 	router.GET("/tests/:id", handler.GetTestByID)
 	router.POST("/tests/:id/submit", handler.SubmitTest)

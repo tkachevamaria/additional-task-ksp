@@ -4,6 +4,10 @@ let currentQuestionIndex = 0;
 let userAnswers = {};
 let userData = null;
 
+const questionImages = {
+  6: "http://localhost:8080/test_images/Test_6.png",
+};
+
 // ========== DOM ЭЛЕМЕНТЫ =================================================================================
 const welcomeScreen = document.getElementById("welcomeScreen");
 const welcomeHint = document.getElementById("welcomeHint");
@@ -316,7 +320,15 @@ function renderCurrentQuestion() {
   if (!testData || !testData.questions) return;
 
   const question = testData.questions[currentQuestionIndex];
-  questionText.innerText = question.text;
+
+  // Проверяем, есть ли картинка для этого вопроса
+   let questionHTML = question.text;
+  if (questionImages[question.id]) {
+    questionHTML += `<br><img src="${questionImages[question.id]}" style="max-width: 400px; display: block; margin: 15px auto; border-radius: 10px;">`;
+    console.log(`🖼️ [renderCurrentQuestion] Картинка добавлена в конец вопроса id=${question.id}`);
+  }
+  
+  questionText.innerHTML = questionHTML;
   progressIndicator.innerText = `Вопрос ${currentQuestionIndex + 1} / ${testData.questions.length}`;
 
   optionsContainer.innerHTML = "";
