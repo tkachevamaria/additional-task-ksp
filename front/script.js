@@ -322,10 +322,10 @@ function renderCurrentQuestion() {
   const question = testData.questions[currentQuestionIndex];
 
   // Проверяем, есть ли картинка для этого вопроса
-   let questionHTML = question.text;
+  let questionHTML = question.text;
   if (questionImages[question.id]) {
     questionHTML += `<br><img src="${questionImages[question.id]}" style="max-width: 400px; display: block; margin: 15px auto; border-radius: 10px;">`;
-    console.log(`🖼️ [renderCurrentQuestion] Картинка добавлена в конец вопроса id=${question.id}`);
+    console.log(`[renderCurrentQuestion] Картинка добавлена в конец вопроса id=${question.id}`);
   }
   
   questionText.innerHTML = questionHTML;
@@ -349,7 +349,17 @@ function renderCurrentQuestion() {
     const label = document.createElement("label");
     label.className = "option-label";
     label.htmlFor = `q_${question.id}_${answer.id}`;
-    label.innerText = answer.text;
+    
+     //заменяем {password} на пароль
+    let answerText = answer.text;
+    if (answerText.includes('{password}') && userData?.password) {
+      answerText = answerText.replace('{password}', userData.password);
+      console.log(`замена пароля случилась: текст ответа: ${answerText}`);
+    }
+    console.log("замена пароля не случилась");
+
+
+    label.innerText = answerText;
 
     div.appendChild(radio);
     div.appendChild(label);
@@ -388,14 +398,14 @@ async function submitTest() {
   );
   
   if (!allAnswered) {
-    console.warn("⚠️ [submitTest] Не все вопросы отвечены");
+    console.warn("[submitTest] Не все вопросы отвечены");
     alert("Пожалуйста, ответьте на все вопросы");
     return false;
   }
   
-  console.log("✅ [submitTest] Все вопросы отвечены");
-  console.log("👤 [submitTest] userData:", userData);
-  console.log("📅 [submitTest] Дата рождения:", userData?.birth);
+  console.log("[submitTest] Все вопросы отвечены");
+  console.log("[submitTest] userData:", userData);
+  console.log("[submitTest] Дата рождения:", userData?.birth);
 
   try {
     const requestBody = {
@@ -403,7 +413,7 @@ async function submitTest() {
       birth_date: userData?.birth,
     };
     
-    console.log("📦 [submitTest] Отправляю запрос:", requestBody);
+    console.log("[submitTest] Отправляю запрос:", requestBody);
     
     const response = await fetch("http://localhost:8080/tests/1/submit", {
       method: "POST",
@@ -413,21 +423,21 @@ async function submitTest() {
       body: JSON.stringify(requestBody),
     });
 
-    console.log("📨 [submitTest] Статус ответа:", response.status);
+    console.log("[submitTest] Статус ответа:", response.status);
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("❌ [submitTest] Ошибка сервера:", errorText);
+      console.error(" [submitTest] Ошибка сервера:", errorText);
       throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
     }
 
     const result = await response.json();
-    console.log("🎉 [submitTest] Получен результат:", result);
+    console.log("[submitTest] Получен результат:", result);
     
     showResultPage(result);
     return true;
   } catch (error) {
-    console.error("❌ [submitTest] Ошибка:", error);
+    console.error("[submitTest] Ошибка:", error);
     alert("Ошибка при отправке результатов. Попробуйте ещё раз.");
     return false;
   }
@@ -435,7 +445,7 @@ async function submitTest() {
 
 // ========== ПОКАЗ РЕЗУЛЬТАТОВ ===================================================================
 function showResultPage(data) {
-  console.log("🖼️ [showResultPage] Отображаю результаты:", data);
+  console.log("[showResultPage] Отображаю результаты:", data);
   
   welcomeScreen.style.display = "none";
   testScreen.style.display = "none";
@@ -444,14 +454,12 @@ function showResultPage(data) {
   const userInfoDiv = document.getElementById("resultUserInfo");
   if (userInfoDiv) {
     userInfoDiv.innerHTML = `
-      <strong>👤 ${userData?.name || "Гость"}</strong><br>
-      📅 Дата рождения: ${userData?.birth || "Не указана"}<br>
+      <strong>${userData?.name || "Гость"}</strong><br>
       ⭐ Знак зодиака: ${data.zodiac_sign || "Не определён"}<br>
-      📧 Email: ${userData?.email || "Не указан"}
     `;
-    console.log("✅ [showResultPage] Информация о пользователе отображена");
+    console.log("[showResultPage] Информация о пользователе отображена");
   } else {
-    console.warn("⚠️ [showResultPage] userInfoDiv не найден");
+    console.warn("[showResultPage] userInfoDiv не найден");
   }
 
   const resultMessageDiv = document.getElementById("resultMessage");
@@ -460,9 +468,9 @@ function showResultPage(data) {
       <strong>${data.result.title || "Результат"}</strong><br><br>
       ${data.result.description || "Спасибо за прохождение теста!"}
     `;
-    console.log("✅ [showResultPage] Результат отображён:", data.result.title);
+    console.log("[showResultPage] Результат отображён:", data.result.title);
   } else {
-    console.warn("⚠️ [showResultPage] resultMessageDiv не найден");
+    console.warn("[showResultPage] resultMessageDiv не найден");
   }
 
   // Картинка результата (если есть)
@@ -510,11 +518,11 @@ function goToPrev() {
 
 // ========== СБРОС ===========================================================================
 function resetAndStartOver() {
-  console.log("🔄 [resetAndStartOver] Сброс теста для повторного прохождения");
+  console.log("[resetAndStartOver] Сброс теста для повторного прохождения");
   
   currentQuestionIndex = 0;
   userAnswers = {};
-  // ❌ НЕ сбрасываем userData! userData = null;
+  // НЕ сбрасываем userData!
   
   if (testData) {
     testData.questions.forEach((q) => {
@@ -544,7 +552,7 @@ function resetAndStartOver() {
     statsContainer.innerHTML = "";
   }
   
-  console.log("✅ [resetAndStartOver] Сброс завершён, userData сохранены:", userData);
+  console.log(" [resetAndStartOver] Сброс завершён, userData сохранены:", userData);
 }
 
 // ========== ЗАПУСК ТЕСТА =============================================================================
