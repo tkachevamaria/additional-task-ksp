@@ -23,9 +23,11 @@ const progressIndicator = document.getElementById("progressIndicator");
 // ========== ЗАГРУЗКА ТЕСТА ============================================================
 async function loadTest() {
   console.log("🚀 [loadTest] Начинаю загрузку теста...");
-  
+
   try {
-    console.log("📡 [loadTest] Отправляю запрос: GET http://localhost:8080/tests/1");
+    console.log(
+      "📡 [loadTest] Отправляю запрос: GET http://localhost:8080/tests/1",
+    );
     const response = await fetch("http://localhost:8080/tests/1");
 
     console.log("📨 [loadTest] Статус ответа:", response.status);
@@ -33,18 +35,27 @@ async function loadTest() {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("❌ [loadTest] Сервер вернул ошибку:", response.status, errorText);
-      throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
+      console.error(
+        "❌ [loadTest] Сервер вернул ошибку:",
+        response.status,
+        errorText,
+      );
+      throw new Error(
+        `HTTP error! status: ${response.status}, body: ${errorText}`,
+      );
     }
 
     console.log("🔄 [loadTest] Парсим JSON...");
     testData = await response.json();
-    
+
     console.log("✅ [loadTest] Тест успешно загружен!");
     console.log("📊 [loadTest] Данные теста:", testData);
     console.log("📝 [loadTest] Название теста:", testData?.title);
-    console.log("❓ [loadTest] Количество вопросов:", testData?.questions?.length);
-    
+    console.log(
+      "❓ [loadTest] Количество вопросов:",
+      testData?.questions?.length,
+    );
+
     // Логируем структуру вопросов
     if (testData?.questions) {
       testData.questions.forEach((q, index) => {
@@ -67,17 +78,16 @@ async function loadTest() {
 
     currentQuestionIndex = 0;
     console.log("🔄 [loadTest] Устанавливаю индекс вопроса на 0");
-    
+
     console.log("🎨 [loadTest] Вызываю renderCurrentQuestion()");
     renderCurrentQuestion();
     console.log("✅ [loadTest] Загрузка теста завершена успешно!");
-    
   } catch (error) {
     console.error("❌ [loadTest] КРИТИЧЕСКАЯ ОШИБКА:", error);
     console.error("❌ [loadTest] Имя ошибки:", error.name);
     console.error("❌ [loadTest] Сообщение:", error.message);
     console.error("❌ [loadTest] Стек:", error.stack);
-    
+
     alert(
       "Не удалось загрузить тест. Проверьте, запущен ли сервер на http://localhost:8080",
     );
@@ -148,9 +158,11 @@ function showRegistrationModal() {
         return false;
       }
       if (!birth) {
-        errorDiv.innerText = "Зайчик забыл ввести дату рождения";
+        errorDiv.innerText =
+          "Зайчик забыл ввести дату рождения ИЛИ ввёл несуществующую дату";
         return false;
       }
+
       if (!email) {
         errorDiv.innerText = "Зайчик забыл ввести email";
         return false;
@@ -325,9 +337,11 @@ function renderCurrentQuestion() {
   let questionHTML = question.text;
   if (questionImages[question.id]) {
     questionHTML += `<br><img src="${questionImages[question.id]}" style="max-width: 400px; display: block; margin: 15px auto; border-radius: 10px;">`;
-    console.log(`[renderCurrentQuestion] Картинка добавлена в конец вопроса id=${question.id}`);
+    console.log(
+      `[renderCurrentQuestion] Картинка добавлена в конец вопроса id=${question.id}`,
+    );
   }
-  
+
   questionText.innerHTML = questionHTML;
   progressIndicator.innerText = `Вопрос ${currentQuestionIndex + 1} / ${testData.questions.length}`;
 
@@ -349,15 +363,14 @@ function renderCurrentQuestion() {
     const label = document.createElement("label");
     label.className = "option-label";
     label.htmlFor = `q_${question.id}_${answer.id}`;
-    
-     //заменяем {password} на пароль
+
+    //заменяем {password} на пароль
     let answerText = answer.text;
-    if (answerText.includes('{password}') && userData?.password) {
-      answerText = answerText.replace('{password}', userData.password);
+    if (answerText.includes("{password}") && userData?.password) {
+      answerText = answerText.replace("{password}", userData.password);
       console.log(`замена пароля случилась: текст ответа: ${answerText}`);
     }
     console.log("замена пароля не случилась");
-
 
     label.innerText = answerText;
 
@@ -392,17 +405,17 @@ function renderCurrentQuestion() {
 /// ========== ОТПРАВКА РЕЗУЛЬТАТОВ ==================================================================
 async function submitTest() {
   console.log("🚀 [submitTest] Начинаю отправку результатов");
-  
+
   const allAnswered = testData.questions.every(
     (q) => userAnswers[q.id] !== null,
   );
-  
+
   if (!allAnswered) {
     console.warn("[submitTest] Не все вопросы отвечены");
     alert("Пожалуйста, ответьте на все вопросы");
     return false;
   }
-  
+
   console.log("[submitTest] Все вопросы отвечены");
   console.log("[submitTest] userData:", userData);
   console.log("[submitTest] Дата рождения:", userData?.birth);
@@ -412,9 +425,9 @@ async function submitTest() {
       user_id: userData?.id,
       birth_date: userData?.birth,
     };
-    
+
     console.log("[submitTest] Отправляю запрос:", requestBody);
-    
+
     const response = await fetch("http://localhost:8080/tests/1/submit", {
       method: "POST",
       headers: {
@@ -428,12 +441,14 @@ async function submitTest() {
     if (!response.ok) {
       const errorText = await response.text();
       console.error(" [submitTest] Ошибка сервера:", errorText);
-      throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
+      throw new Error(
+        `HTTP error! status: ${response.status}, body: ${errorText}`,
+      );
     }
 
     const result = await response.json();
     console.log("[submitTest] Получен результат:", result);
-    
+
     showResultPage(result);
     return true;
   } catch (error) {
@@ -446,7 +461,7 @@ async function submitTest() {
 // ========== ПОКАЗ РЕЗУЛЬТАТОВ ===================================================================
 function showResultPage(data) {
   console.log("[showResultPage] Отображаю результаты:", data);
-  
+
   welcomeScreen.style.display = "none";
   testScreen.style.display = "none";
   resultPage.style.display = "block";
@@ -480,7 +495,7 @@ function showResultPage(data) {
   if (resultImage) {
     resultImage.src = `http://localhost:8080/images/${data.result.id}.png`;
     resultImage.style.display = "block";
-  } 
+  }
 
   // Для Близнецов (id=3) показываем вторую картинку
   if (data.result.id === 3 && resultImage2) {
@@ -519,11 +534,11 @@ function goToPrev() {
 // ========== СБРОС ===========================================================================
 function resetAndStartOver() {
   console.log("[resetAndStartOver] Сброс теста для повторного прохождения");
-  
+
   currentQuestionIndex = 0;
   userAnswers = {};
   // НЕ сбрасываем userData!
-  
+
   if (testData) {
     testData.questions.forEach((q) => {
       userAnswers[q.id] = null;
@@ -551,8 +566,11 @@ function resetAndStartOver() {
   if (statsContainer) {
     statsContainer.innerHTML = "";
   }
-  
-  console.log(" [resetAndStartOver] Сброс завершён, userData сохранены:", userData);
+
+  console.log(
+    " [resetAndStartOver] Сброс завершён, userData сохранены:",
+    userData,
+  );
 }
 
 // ========== ЗАПУСК ТЕСТА =============================================================================

@@ -31,7 +31,7 @@
   opacity: 0;
   visibility: hidden;
   transform: translateX(-200px);
-  animation: slideInLeft 0.8s ease-out 0.05s forwards;
+  animation: slideInLeft 1.5s ease-out 0.05s forwards;
 }
 
 /* Правая картинка - выезжает снизу справа  - Облака  */
@@ -50,7 +50,7 @@
   opacity: 0;
   visibility: hidden;
   transform: translateX(200px);
-  animation: slideInRight 0.8s ease-out 0.15s forwards;
+  animation: slideInRight 1.5s ease-out 0.15s forwards;
 }
 
 @keyframes slideInLeft {
