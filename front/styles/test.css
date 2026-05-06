@@ -1,11 +1,11 @@
 #testScreen.card {
   position: relative;
-  margin-top: -40px; /* отступ сверху вместо */
+  margin-top: -70px; /* отступ сверху вместо */
 }
 
 .question-text {
   font-family: "LittleStar", sans-serif;
-  font-size: 40px;
+  font-size: 30px;
   /* font-weight: 700; */
   color: #f5f0e9;
   margin-bottom: 30px;
@@ -94,18 +94,31 @@
   transform: rotate(15deg);
 }
 
-/* Нижняя левая картинка */
-#testScreen::before {
+/* Верхняя левая картинка */
+#testScreen.card::before {
   content: "";
   position: fixed;
-  bottom: -320px;
+  top: -15%;
+  left: -250px;
+  width: 500px;
+  height: 500px;
+  background-image: url("../images/Tests/Rabbits_3.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Нижняя левая картинка */
+.deco-bottom-left {
+  position: fixed;
+  bottom: -200px;
   left: -300px;
-  width: 600px;
-  height: 600px;
+  width: 450px;
+  height: 450px;
   background-image: url("../images/Tests/zodiac.png");
   background-size: contain;
   background-repeat: no-repeat;
   pointer-events: none;
-  z-index: -10;
-  /* opacity: 0.8; */
+  z-index: 0;
 }

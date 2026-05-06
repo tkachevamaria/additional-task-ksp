@@ -459,52 +459,100 @@ async function submitTest() {
 }
 
 // ========== ПОКАЗ РЕЗУЛЬТАТОВ ===================================================================
-function showResultPage(data) {
+async function showResultPage(data) {
   console.log("[showResultPage] Отображаю результаты:", data);
-
   welcomeScreen.style.display = "none";
   testScreen.style.display = "none";
   resultPage.style.display = "block";
 
+  // 1. Заголовок
   const userInfoDiv = document.getElementById("resultUserInfo");
   if (userInfoDiv) {
-    userInfoDiv.innerHTML = `
-      <strong>${userData?.name || "Гость"}</strong><br>
-      ⭐ Знак зодиака: ${data.zodiac_sign || "Не определён"}<br>
-    `;
-    console.log("[showResultPage] Информация о пользователе отображена");
-  } else {
-    console.warn("[showResultPage] userInfoDiv не найден");
+    userInfoDiv.textContent = `${userData?.name || "Зайчик"}, Вы ${data.zodiac_sign || "Не определён"}`;
   }
 
+  // 2. Загрузка результата из БД (если в data нет описания)
+  let resultData = data.result;
+  if (!resultData || !resultData.description) {
+    try {
+      console.log(
+        "[showResultPage] Загружаю результат из БД для id:",
+        data.result?.id,
+      );
+      const response = await fetch(
+        `http://localhost:8080/results/${data.result?.id}`,
+      );
+      if (response.ok) {
+        resultData = await response.json();
+      }
+    } catch (error) {
+      console.warn(
+        "[showResultPage] Не удалось загрузить результат из БД:",
+        error,
+      );
+    }
+  }
+
+  // 3. Текст результата
   const resultMessageDiv = document.getElementById("resultMessage");
   if (resultMessageDiv) {
-    resultMessageDiv.innerHTML = `
-      <strong>${data.result.title || "Результат"}</strong><br><br>
-      ${data.result.description || "Спасибо за прохождение теста!"}
-    `;
-    console.log("[showResultPage] Результат отображён:", data.result.title);
-  } else {
-    console.warn("[showResultPage] resultMessageDiv не найден");
+    resultMessageDiv.innerHTML = `<strong>${resultData?.title || "Результат"}</strong><br><br>${resultData?.description || "Спасибо за прохождение теста!"}`;
   }
 
-  // Картинка результата (если есть)
+  // 4. Картинки
   const resultImage = document.getElementById("resultImage");
   const resultImage2 = document.getElementById("resultImage2");
+  const resId = resultData?.id || data.result.id;
 
   if (resultImage) {
-    resultImage.src = `http://localhost:8080/images/${data.result.id}.png`;
+    resultImage.src = `http://localhost:8080/images/${resId}.png`;
     resultImage.style.display = "block";
   }
-
-  // Для Близнецов (id=3) показываем вторую картинку
-  if (data.result.id === 3 && resultImage2) {
+  if (resId === 3 && resultImage2) {
     resultImage2.src = `http://localhost:8080/images/3_2.png`;
     resultImage2.style.display = "block";
   } else if (resultImage2) {
     resultImage2.style.display = "none";
   }
+
+  // 5. Режим Близнецов
+  if (resId === 3) {
+    resultPage.classList.add("gemini-mode");
+  } else {
+    resultPage.classList.remove("gemini-mode");
+  }
 }
+// // ========================================================================
+// // 🔧 ВРЕМЕННЫЙ РЕЖИМ ОТЛАДКИ (чтобы сразу видеть результаты)
+// // ========================================================================
+// function openResultDebug() {
+//   console.log("🛠 [Debug] Открываю окно результатов напрямую...");
+
+//   // Мокаем пользователя
+//   window.userData = { name: "Разработчик" };
+
+//   // Мокаем ответ сервера
+//   const mockData = {
+//     zodiac_sign: "Близнецы",
+//     result: {
+//       id: 3, // 3 = Близнецы (покажет 2 картинки). Поменяй на 1 или 2 для теста одной картинки
+//       title: "Заголовок твоего результата",
+//       description:
+//         "Здесь будет длинный текст описания. Он должен хорошо читаться на полупрозрачном боксе, не сливаясь с фоном. Проверь переносы строк и отступы.",
+//     },
+//   };
+
+//   // Скрываем лишнее, показываем результат
+//   const welcome = document.getElementById("welcomeScreen");
+//   const test = document.getElementById("testScreen");
+//   const result = document.getElementById("resultPage");
+//   if (welcome) welcome.style.display = "none";
+//   if (test) test.style.display = "none";
+//   if (result) result.style.display = "block";
+
+//   showResultPage(mockData);
+// }
+
 // ========== НАВИГАЦИЯ ===========================================================================
 function goToNext() {
   if (!testData) return;
@@ -574,6 +622,29 @@ function resetAndStartOver() {
 }
 
 // ========== ЗАПУСК ТЕСТА =============================================================================
+// // 🔧 ВРЕМЕННАЯ ФУНКЦИЯ ДЛЯ ОТЛАДКИ
+// async function startTestFlow() {
+//   console.log("🛠 [Debug] Пропуск регистрации, подставляю тестовые данные...");
+
+//   // Подставь любые данные, которые нужны серверу/логике
+//   userData = {
+//     id: 999,
+//     name: "Разработчик",
+//     password: "test123",
+//     birth: "1995-05-15",
+//     email: "debug@test.com",
+//   };
+
+//   // Скрываем приветствие, показываем тест
+//   welcomeScreen.style.display = "none";
+//   testScreen.style.display = "block";
+//   testScreen.style.opacity = "1";
+//   testScreen.style.transform = "scale(1)";
+
+//   // Загружаем тест без модалки
+//   await loadTest();
+// }
+
 async function startTestFlow() {
   const registered = await showRegistrationModal();
   if (!registered) {
@@ -615,3 +686,5 @@ testScreen.style.display = "none";
 resultPage.style.display = "none";
 
 initWelcomeScreen();
+
+// window.addEventListener("DOMContentLoaded", openResultDebug);

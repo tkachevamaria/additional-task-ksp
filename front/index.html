@@ -26,6 +26,7 @@
 
       <!-- ЭКРАН ТЕСТА (скрыт изначально) -->
       <div id="testScreen" class="hidden card">
+        <div class="deco-img deco-bottom-left"></div>
         <div class="progress" id="progressIndicator">Вопрос 1 / 3</div>
         <div class="question-text" id="questionText"></div>
         <div class="options-list" id="optionsContainer"></div>
@@ -36,40 +37,26 @@
       </div>
 
       <!-- ОТДЕЛЬНАЯ СТРАНИЦА РЕЗУЛЬТАТОВ -->
-      <div id="resultPage" class="card result-card" style="display: none">
-        <div class="result-box">
-          <h2>Результаты теста</h2>
-          <div id="resultUserInfo" class="user-info-badge"></div>
-          <div class="result-text" id="resultMessage"></div>
+      <div id="resultPage" class="card" style="display: none">
+        <div class="garland-container">
+          <img src="images/Girlynda.png" alt="garland" class="garland" />
+          <img src="images/Girlynda.png" alt="garland" class="garland" />
+        </div>
 
-          <div class="result-image-container">
-            <img
-              id="resultImage"
-              src=""
-              alt="Знак зодиака"
-              style="
-                display: none;
-                max-width: 300px;
-                margin: 20px auto;
-                border-radius: 10px;
-              "
-            />
-            <img
-              id="resultImage2"
-              src=""
-              alt="Знак зодиака"
-              style="
-                display: none;
-                max-width: 300px;
-                margin: 20px auto;
-                border-radius: 10px;
-              "
-            />
-          </div>
+        <!-- Динамический заголовок -->
+        <div id="resultUserInfo" class="user-info-badge"></div>
 
-          <div class="result-buttons">
-            <button class="btn-secondary" id="newTestBtn">Пройти заново</button>
-          </div>
+        <!-- Обёртка для разделения экрана (текст слева/центр, картинки справа/по бокам) -->
+        <div class="result-split">
+          <div id="resultMessage" class="result-text"></div>
+          <img id="resultImage" style="display: none" />
+          <img id="resultImage2" style="display: none" />
+        </div>
+
+        <!-- Статистика и кнопки остаются внизу, как были -->
+        <div id="statisticsContainer" class="statistics"></div>
+        <div id="resultButtons" class="result-buttons">
+          <button id="newTestBtn" class="btn-primary">Пройти заново</button>
         </div>
       </div>
     </div>
